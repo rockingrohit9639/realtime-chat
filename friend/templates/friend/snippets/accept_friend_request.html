@@ -1,0 +1,30 @@
+<script>
+    function acceptFriendRequest(friend_request_id, uiUpdateFunction){
+        let url = "{% url 'friend:accept friend requests' friend_request_id=455456765748764667756 %}".replace("455456765748764667756", friend_request_id)
+        let payload = {
+            "csrfmiddlewaretoken": "{{ csrf_token }}"
+        }
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: url,
+            timeout: 5000,
+            data: payload,
+            success: function(data) {
+                if(data.response === "Friend request accepted."){
+
+                }
+                else if(data.response != null){
+                    alert(data.response)
+                }
+            },
+            error: function(data){
+                alert(data.response)
+            },
+            complete: function(data){
+                uiUpdateFunction()
+            }
+        })
+    }
+
+</script>

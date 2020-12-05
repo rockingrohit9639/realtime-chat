@@ -1,5 +1,15 @@
 {% load static %}
 
+
+<style type="text/css">
+	.chat-dropdown-header:hover{
+		cursor: pointer;
+		background: var(--main-background-color);
+	}
+	.chat-dropdown-header{
+		color: var(--light-primary-text-color);
+	}
+</style>
 <!-- Header -->
 <div class="d-flex flex-column flex-lg-row p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
 
@@ -10,7 +20,7 @@
 			<a class="p-2 text-dark" href="/">Home</a>
 		</h5>
 		<form class="search-bar justify-content-start" onsubmit="return executeQuery();">
-			<input type="text" class="form-control" name="q" id="id_q_large" placeholder="Search...">
+			<input type="text" class="form-control" name="q" id="id_q_large" placeholder="Search for friends...">
 		</form>
 
 		<div class="d-flex flex-row-reverse flex-grow-1">
@@ -90,6 +100,8 @@
 
 
 <script type="text/javascript">
+	setupChatDropdownHeader()
+
 	function executeQuery() {
 		let query = ""
 		query = document.getElementById('id_q_small').value;
@@ -100,7 +112,40 @@
 	    return false
 	}
 
+	/*
+		Add a header to the dropdown so users can visit /chat/
+	*/
+	function setupChatDropdownHeader(){
+		let notificationContainer = document.getElementById("id_chat_notifications_container")
+
+		if(notificationContainer != null){
+
+			let div = document.createElement("div")
+			div.classList.add("chat-dropdown-header", "d-flex", "flex-row", "justify-content-end", "m-auto", "align-items-end")
+			div.addEventListener("click", function(e){
+				let url = "{% url 'private_chat:private chat view' %}"
+				chatRedirect(url)
+			})
+
+			span1 = document.createElement("span")
+			span1.classList.add("mr-2")
+			span1.innerHTML = "Go to chat"
+			div.appendChild(span1)
+
+			span2 = document.createElement("span")
+			span2.classList.add("material-icons", "mr-2")
+			span2.innerHTML = "forward"
+			div.appendChild(span2)
+			notificationContainer.appendChild(div)
+		}
+	}
+
+	function chatRedirect(url){
+		window.location.href = url
+	}
+
 </script>
+
 
 
 

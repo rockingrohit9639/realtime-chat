@@ -1,37 +1,25 @@
+{% extends 'base.html' %} 
 
-{% extends 'base.html' %}
-
-{% block title %}
-Home
-{% endblock %}
+{% block title %} Home {% endblock %} 
 
 {% block content %}
 <div class="container">
+  <!-- MEDIUM+ SCREENS -->
+      <div class="jumbotron bg-light">
+          <h1 class="display-4"> Welcome to <strong class="text-info">RealtimeChatPlayground! </strong> </h1>
+          <p class="lead">This is simple website for realtime chatting. It is created using Websockets and Channels in Django.</p>
+          <hr class="my-4">
+          <a class="btn btn-info" href="#id_chat_log">Lets Chat</a>
+      </div>
 
-	<!-- MEDIUM+ SCREENS -->
-	<div class="main d-none d-md-flex flex-column">
-		<div class="card p-4 align-items-start">
-
-			<h3 class="pb-4">Welcome to <strong class="text-info">RealtimeChatPlayground</strong></h3>
-			<p class="pb-2">This website is created using <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSocket" target="_blank" rel="nofollow">WebSockets</a> and <a href="https://channels.readthedocs.io/en/latest/" target="_blank" rel="nofollow">Django Channels</a>.</p>
-{#			<a class="btn btn-info d-flex flex-row align-items-start" href="#" target="_blank">#}
-{#				<span class="d-flex material-icons pr-2">build</span>#}
-{#				<span class="d-flex">Learn more</span>#}
-{#			</a>#}
-		</div>
-
-		{% include 'snippets/public_chat_room.html' with room_id=room_id %}
-
-
-	</div>
-	<!-- END MEDIUM+ SCREENS -->
-	
-	<!-- SMALL SCREENS -->
-	<div class="d-flex d-md-none p-2">
-		<p> Please access the website on desktop for full access. </p>
-	</div>
-	<!-- END SMALL SCREENS -->
+    {% include 'snippets/public_chat_room.html' with room_id=room_id %}
 </div>
+  <!-- END MEDIUM+ SCREENS -->
 
+  <!-- SMALL SCREENS -->
+  <div class="d-flex d-md-none p-2">
+    <p>Please access the website on desktop for full access.</p>
+  </div>
+  <!-- END SMALL SCREENS -->
 
 {% endblock content %}

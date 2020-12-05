@@ -1,0 +1,39 @@
+<script type="text/javascript">
+
+   function createOrReturnPrivateChat(id){
+		payload = {
+			"csrfmiddlewaretoken": "{{ csrf_token }}",
+			"user2_id": id,
+		}
+		$.ajax({
+			type: 'POST',
+			dataType: "json",
+			url: "{% url 'private_chat:create-or-return-private-chat' %}", // production
+			data: payload,
+			timeout: 5000,
+			success: function(data) {
+				console.log("SUCCESS", data)
+				if(data['response'] === "Successfully got the chat."){
+					let chatroomId = data['chatroom_id']
+					OnGetOrCreateChatroomSuccess(chatroomId)
+				}
+				else if(data['response'] != null){
+					alert(data['response'])
+				}
+			},
+			error: function(data) {
+				console.error("ERROR...", data)
+				alert("Something went wrong.")
+			},
+		});
+	}
+
+
+	function OnGetOrCreateChatroomSuccess(chatroomId){
+			let url = "{% url 'chat:private chat view' %}?room_id=" + chatroomId
+			let win = window.location.replace(url)
+			// window.open(url) // for new tab
+			win.focus()
+		}
+
+</script>

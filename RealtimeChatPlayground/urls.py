@@ -15,7 +15,7 @@ from account.views import (
 urlpatterns = [
     path('account/', include("account.urls")),
     path('admin/', admin.site.urls),
-    path('chat/', include("public_chat.urls")),
+    path('chat/', include("private_chat.urls", namespace="chat")),
     path('friend/', include("friend.urls", namespace="friend")),
     path('login/', handle_login, name="login"),
     path('logout/', handle_logout, name="logout"),

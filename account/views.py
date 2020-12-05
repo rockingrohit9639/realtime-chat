@@ -216,6 +216,7 @@ def edit_account_view(request, *args, **kwargs):
     return render(request, "update_account.html", context)
 
 
+# Saving an image temporarily
 def save_temp_profile_image_from_base64String(imageString, user):
     INCORRECT_PADDING_EXCEPTION = "Incorrect padding"
     try:
@@ -239,6 +240,7 @@ def save_temp_profile_image_from_base64String(imageString, user):
     return None
 
 
+# Cropping an image
 def crop_image(request, *args, **kwargs):
     payload = {}
     user = request.user

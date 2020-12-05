@@ -2,7 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
+from private_chat.utils import find_or_create_private_chat
 
+
+# Creating a friend list for each user
 class FriendList(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user")
     friends = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="friends")
@@ -16,10 +19,22 @@ class FriendList(models.Model):
             self.friends.add(account)
             self.save()
 
+            # Creating a private chat room when two users become friends
+            chat = find_or_create_private_chat(self.user, account)
+            if not chat.is_active:
+                chat.is_active = True
+                chat.save()
+
     def remove_friend(self, account):
         # Removing a friend from the friend list
         if account in self.friends.all():
             self.friends.remove(account)
+
+            # Deactivating the private chat room when two users are no longer friends
+            chat = find_or_create_private_chat(self.user, account)
+            if chat.is_active:
+                chat.is_active = False
+                chat.save()
 
     def unfriend(self, removee):
         # Removing a friend

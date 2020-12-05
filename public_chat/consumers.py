@@ -4,12 +4,11 @@ from django.core.serializers import serialize
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 import json
-from django.contrib.auth import get_user_model
-from django.contrib.humanize.templatetags.humanize import naturaltime, naturalday
 from django.utils import timezone
-from datetime import datetime
-
+from django.contrib.auth import get_user_model
+from private_chat.exceptions import ClientError
 from public_chat.models import PublicChatRoom, PublicChatMessage
+from private_chat.utils import calculate_timestamp
 
 User = get_user_model()
 
@@ -25,7 +24,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 		self.room_id = None
 
 	async def disconnect(self, code):
-		print("PublicChatConsumer: disconnect")
 		try:
 			if self.room_id != None:
 				await self.leave_room(self.room_id)
@@ -34,7 +32,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 
 	async def receive_json(self, content):
 		command = content.get("command", None)
-		print("PublicChatConsumer: receive_json: " + str(command))
 		try:
 			if command == "send":
 				if len(content["message"].lstrip()) != 0:
@@ -61,7 +58,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 			await self.handle_client_error(e)
 
 	async def send_room(self, room_id, message):
-		print("PublicChatConsumer: send_room")
 		if self.room_id is not None:
 			if str(room_id) != str(self.room_id):
 				raise ClientError("ROOM_ACCESS_DENIED", "Room access denied")
@@ -86,7 +82,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 		)
 
 	async def chat_message(self, event):
-		print("PublicChatConsumer: chat_message from user #" + str(event["user_id"]))
 		timestamp = calculate_timestamp(timezone.now())
 		await self.send_json(
 			{
@@ -100,7 +95,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 		)
 
 	async def join_room(self, room_id):
-		print("PublicChatConsumer: join_room")
 		is_auth = is_authenticated(self.scope["user"])
 		try:
 			room = await get_room_or_error(room_id)
@@ -126,7 +120,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 		})
 
 	async def leave_room(self, room_id):
-		print("PublicChatConsumer: leave_room")
 		is_auth = is_authenticated(self.scope["user"])
 		room = await get_room_or_error(room_id)
 
@@ -151,7 +144,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 		return
 
 	async def send_messages_payload(self, messages, new_page_number, room_id):
-		print("PublicChatConsumer: send_messages_payload. ")
 		room = await get_room_or_error(room_id)
 		total_users = await get_num_connected_users(room)
 		await self.send_json(
@@ -164,10 +156,8 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 		)
 
 	async def display_progress_bar(self, is_displayed, room_id):
-		print("DISPLAY PROGRESS BAR: " + str(is_displayed))
 		room = await get_room_or_error(room_id)
 		total_users = await get_num_connected_users(room)
-		print(total_users)
 		await self.send_json(
 			{
 				"display_progress_bar": is_displayed,
@@ -208,7 +198,6 @@ def get_room_or_error(room_id):
 
 @database_sync_to_async
 def get_num_connected_users(room):
-	print(room)
 	if room.users:
 		return len(room.users.all())
 	return 0
@@ -236,45 +225,11 @@ def get_room_chat_messages(room, page_number):
 		return None
 
 
-class ClientError(Exception):
-	"""
-	Custom exception class that is caught by the websocket receive()
-	handler and translated into a send back to the client.
-	"""
-
-	def __init__(self, code, message):
-		super().__init__(code)
-		self.code = code
-		if message:
-			self.message = message
-
-
-def calculate_timestamp(timestamp):
-	"""
-	1. Today or yesterday:
-		- EX: 'today at 10:56 AM'
-		- EX: 'yesterday at 5:19 PM'
-	2. other:
-		- EX: 05/06/2020
-		- EX: 12/28/2020
-	"""
-	ts = ""
-	# Today or yesterday
-	if (naturalday(timestamp) == "today") or (naturalday(timestamp) == "yesterday"):
-		str_time = datetime.strftime(timestamp, "%I:%M %p")
-		str_time = str_time.strip("0")
-		ts = f"{naturalday(timestamp)} at {str_time}"
-	# other days
-	else:
-		str_time = datetime.strftime(timestamp, "%m/%d/%Y")
-		ts = f"{str_time}"
-	return str(ts)
-
-
 class LazyRoomChatMessageEncoder(Serializer):
 	def get_dump_object(self, obj):
 		dump_object = {}
 		dump_object.update({'msg_type': MSG_TYPE_MESSAGE})
+		dump_object.update({'msg_id': str(obj.id)})
 		dump_object.update({'user_id': str(obj.user.id)})
 		dump_object.update({'username': str(obj.user.username)})
 		dump_object.update({'message': str(obj.content)})

@@ -29,10 +29,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Custom apps
     'personal.apps.PersonalConfig',
     'account.apps.AccountConfig',
     'friend',
     'public_chat',
+
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'django.contrib.humanize',
+    'private_chat.apps.PrivateChatConfig'
 
 ]
 

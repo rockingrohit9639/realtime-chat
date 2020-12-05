@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
 
+# Enabling the user to login if he/she enters capital letters in email by mistake
 class CaseSensitiveModelBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):

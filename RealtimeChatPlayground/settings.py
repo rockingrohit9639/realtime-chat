@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'django.contrib.humanize',
-    'private_chat.apps.PrivateChatConfig'
+    'private_chat.apps.PrivateChatConfig',
+    'notification',
 
 ]
 

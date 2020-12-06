@@ -9,6 +9,50 @@
 	.chat-dropdown-header{
 		color: var(--light-primary-text-color);
 	}
+    #id_profile_links{
+        cursor: pointer;
+    }
+
+    .scrollable-menu {
+		height: auto;
+		max-height: 90vh;
+		width: 500px;
+		overflow-x: hidden;
+	}
+
+    .notifications-material-icon {
+		font-size: 28px;
+
+	}
+	.notifications-icon-container{
+		width: 40px;
+		height: 40px;
+		background-color: var(--main-background-color);
+	}
+	.notifications-icon-container:hover {
+		cursor: pointer;
+		background-color: var(--secondary-text-color)
+	}
+	.notify-badge{
+		position: absolute;
+		background: transparent;
+		height:1.2rem;
+		width:1.2rem;
+		line-height: 1.2rem;
+		top:1rem;
+		right:2rem;
+		text-align: center;
+		font-size: 1rem;
+		border-radius: 50%;
+		color:white;
+		font-weight: 630;
+		margin-top:-15px;
+		margin-right: -25px;
+	}
+	#id_notifications_spinner{
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
 </style>
 <!-- Header -->
 <div class="d-flex flex-column flex-lg-row p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
@@ -39,7 +83,7 @@
 							</div>
 
 							<div class="btn-group dropleft">
-								<div class="d-flex notifications-icon-container rounded-circle align-items-center mr-3" id="id_notification_dropdown_toggle" data-toggle="dropdown" onclick="setGeneralNotificationsAsRead()">
+								<div class="d-flex notifications-icon-container rounded-circle align-items-center mr-3" id="id_notification_dropdown_toggle" data-toggle="dropdown" onclick="setGeneralNotificationsAsRead()" >
 									<span id="id_general_notifications_count" class="notify-badge"></span>
 									<span class="d-flex material-icons notifications-material-icon m-auto align-items-center">notifications</span>
 									<div class="dropdown-menu scrollable-menu" aria-labelledby="id_notification_dropdown_toggle" id="id_general_notifications_container">
@@ -99,8 +143,83 @@
 </div>
 
 
+{% include 'snippets/general_notifications.html' %}
+{% include 'snippets/chat_notifications.html' %}
+
 <script type="text/javascript">
-	setupChatDropdownHeader()
+	// Correctly decide between ws:// and wss://
+	let scheme = window.location.protocol === "https:" ? "wss" : "ws";
+	// let ws_path = ws_scheme + '://' + window.location.host + ":8001/"; // PRODUCTION
+	let path = scheme + '://' + window.location.host + "/";
+	// console.log("Connecting to " + ws_path);
+	let notificationSocket = new WebSocket(path);
+
+	// Handle incoming messages
+	notificationSocket.onmessage = function(message) {
+		let data = JSON.parse(message.data);
+		console.log("Got notification websocket message. " + data.general_msg_type);
+
+		if(data.general_msg_type === 0){
+			handleGeneralNotificationsData(data['notifications'], data['new_page_number']);
+		}
+
+		if(data.general_msg_type === 5){
+			updateGeneralNotificationDiv(data['notification']);
+		}
+
+		if(data.general_msg_type === 1){
+			setGeneralPaginationExhausted();
+		}
+
+		if(data.general_msg_type === 2){
+			refreshGeneralNotificationsData(data['notifications']);
+		}
+
+		if(data.general_msg_type === 3){
+			handleNewGeneralNotificationsData(data['notifications']);
+		}
+
+        if(data.general_msg_type === 4){
+			setUnreadGeneralNotificationsCount(data['count']);
+		}
+
+        if(data.chat_msg_type === 10){
+			handleChatNotificationsData(data['notifications'], data['new_page_number'])
+		}
+        if(data.chat_msg_type === 13){
+			handleNewChatNotificationsData(data['notifications'])
+		}
+        if(data.chat_msg_type === 14){
+			setChatNotificationsCount(data['count'])
+		}
+	}
+
+	notificationSocket.onclose = function(e) {
+		console.error('Notification Socket closed unexpectedly');
+	};
+
+	notificationSocket.onopen = function(e){
+		console.log("Notification Socket on open: " + e);
+        setupGeneralNotificationsMenu();
+		getFirstGeneralNotificationsPage();
+		getUnreadGeneralNotificationsCount();
+		setupChatNotificationsMenu();
+		getFirstChatNotificationsPage();
+	}
+
+	notificationSocket.onerror = function(e){
+		console.log('Notification Socket error', e)
+	}
+
+	if (notificationSocket.readyState === WebSocket.OPEN) {
+		console.log("Notification Socket OPEN complete.")
+	}
+	else if (notificationSocket.readyState === WebSocket.CONNECTING){
+		console.log("Notification Socket connecting..")
+	}
+</script>
+
+<script type="text/javascript">
 
 	function executeQuery() {
 		let query = ""
@@ -110,34 +229,6 @@
 		}
 	    window.location.replace("{% url 'search' %}?q=" + query)
 	    return false
-	}
-
-	/*
-		Add a header to the dropdown so users can visit /chat/
-	*/
-	function setupChatDropdownHeader(){
-		let notificationContainer = document.getElementById("id_chat_notifications_container")
-
-		if(notificationContainer != null){
-
-			let div = document.createElement("div")
-			div.classList.add("chat-dropdown-header", "d-flex", "flex-row", "justify-content-end", "m-auto", "align-items-end")
-			div.addEventListener("click", function(e){
-				let url = "{% url 'private_chat:private chat view' %}"
-				chatRedirect(url)
-			})
-
-			span1 = document.createElement("span")
-			span1.classList.add("mr-2")
-			span1.innerHTML = "Go to chat"
-			div.appendChild(span1)
-
-			span2 = document.createElement("span")
-			span2.classList.add("material-icons", "mr-2")
-			span2.innerHTML = "forward"
-			div.appendChild(span2)
-			notificationContainer.appendChild(div)
-		}
 	}
 
 	function chatRedirect(url){

@@ -250,10 +250,6 @@ def decline_friend_request(user, notification_id):
 
 @database_sync_to_async
 def refresh_general_notifications(user, oldest_timestamp, newest_timestamp):
-    """
-    Retrieve the general notifications newer than the oldest one on the screen and younger than the newest one the screen.
-    The result will be: Notifications currently visible will be updated
-    """
     payload = {}
     if user.is_authenticated:
         oldest_ts = oldest_timestamp[0:oldest_timestamp.find("+")] # remove timezone because who cares
@@ -327,12 +323,6 @@ def mark_notifications_read(user):
 
 @database_sync_to_async
 def get_chat_notifications(user, page_number):
-    """
-    Get Chat Notifications with Pagination (next page of results).
-    This is for appending to the bottom of the notifications list.
-    Chat Notifications are:
-    1. UnreadChatRoomMessages
-    """
     if user.is_authenticated:
         chatmessage_ct = ContentType.objects.get_for_model(UnreadChatRoomMessages)
         notifications = Notification.objects.filter(target=user, content_type=chatmessage_ct).order_by('-timestamp')
@@ -355,9 +345,6 @@ def get_chat_notifications(user, page_number):
 
 @database_sync_to_async
 def get_new_chat_notifications(user, newest_timestamp):
-    """
-    Retrieve any notifications newer than the newest_timestatmp on the screen.
-    """
     payload = {}
     if user.is_authenticated:
 

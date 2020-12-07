@@ -165,7 +165,7 @@ class PrivateChatConsumer(AsyncJsonWebsocketConsumer):
         # get list of connected_users
         connected_users = room.connected_users.all()
 
-        # Execute these functions asychronously
+        # Execute these functions asynchronously
         await asyncio.gather(*[
             append_unread_msg_if_not_connected(room, room.user1, connected_users, message),
             append_unread_msg_if_not_connected(room, room.user2, connected_users, message),
@@ -185,7 +185,6 @@ class PrivateChatConsumer(AsyncJsonWebsocketConsumer):
 
     # These helper methods are named by the types we send - so chat.join becomes chat_join
     async def chat_join(self, event):
-        # Send a message down to the client
         print("ChatConsumer: chat_join: " + str(self.scope["user"].id))
 
     async def chat_leave(self, event):
@@ -202,7 +201,7 @@ class PrivateChatConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        # Send a message down to the client
+        # Sending a message to the client
 
         timestamp = calculate_timestamp(timezone.now())
 
@@ -237,7 +236,7 @@ class PrivateChatConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def display_progress_bar(self, is_displayed):
-        # displaying the progress bar
+        # displaying the progress bar in ui
         await self.send_json(
             {
                 "display_progress_bar": is_displayed

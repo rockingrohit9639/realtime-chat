@@ -46,6 +46,7 @@ Edit Profile
 
 <div class="container-fluid">
 	<div class="row justify-content-center">
+    <div class="col-md-8">
 		<div class="card profile-card">
 		  <div class="card-body">
 		  	<div class="d-flex flex-column justify-content-center p-4">
@@ -64,8 +65,11 @@ Edit Profile
 			  		<h6 class="mt-4 field-heading">Email</h6>
 			  		<input type="email" name="email" id="id_input_email" class="form-control" placeholder="Email address" required autofocus value={{form.initial.email}}>
 			  		<h6 class="mt-4 field-heading">Username</h6>
-			  		<input type="text" name="username" id="id_input_username" class="form-control" placeholder="Username" required
-					value="{{form.initial.username}}">
+			  		<input type="text" name="username" id="id_input_username" class="form-control" placeholder="Username" required value="{{form.initial.username}}">
+
+                    <h6 class="mt-4 field-heading">Bio</h6>
+                    <textarea type="text" name="bio" id="id_input_bio" class="form-control" placeholder="Bio" required>{{form.initial.bio}}</textarea>
+
 					<div class="mt-4 checkbox">
 						<label>
 							<input type="checkbox" name="hide_email" id="id_input_hide_email" {% if form.initial.hide_email %}checked{%endif%}>
@@ -97,6 +101,7 @@ Edit Profile
 		  	</div>
 		  </div>
 		</div>
+    </div>
 	</div>
 </div>
 

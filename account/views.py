@@ -17,7 +17,6 @@ from friend.utils import get_request_or_not
 from friend.friend_request_status import FriendRequestStatus
 
 
-
 TEMP_PROFILE_IMAGE_NAME = "temp_profile_image.png"
 
 
@@ -103,6 +102,7 @@ def account_view(request, *args, **kwargs):
         context['id'] = account.id
         context['username'] = account.username
         context['email'] = account.email
+        context['bio'] = account.bio
         context['profile_image'] = account.profile_image.url
         context['hide_email'] = account.hide_email
 
@@ -207,6 +207,7 @@ def edit_account_view(request, *args, **kwargs):
                 "id": account.pk,
                 "email": account.email,
                 "username": account.username,
+                "bio": account.bio,
                 "profile_image": account.profile_image,
                 "hide_email": account.hide_email,
             }

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'private_chat.apps.PrivateChatConfig',
     'notification',
+    'posts',
 
 ]
 

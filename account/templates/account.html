@@ -68,7 +68,11 @@
   }
 </style>
 
-<div class="container-fluid">
+<div class="container">
+<div class="row">
+    <div class="col-md-6">
+
+
   <div
     class="d-flex flex-row justify-content-center flex-wrap align-items-start"
   >
@@ -110,7 +114,10 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
 
+<div class="col-md-6">
     {% if request.user.is_authenticated %}
     <div class="d-flex flex-column mb-4">
       <!-- THEM to YOU -->
@@ -135,6 +142,14 @@
         </div>
       </div>
       {% endif %}
+
+    <div class="card m-2 px-4 pb-4">
+        <div class="card-body">
+            <h5 class="card-title"> Bio </h5>
+            <hr>
+            <p class="card-text">{{ bio }}</p>
+        </div>
+    </div>
 
       <div class="card m-2 px-4 pb-4">
         <!-- Cancel Friend Request / Send Friend Request / Remove Friend -->
@@ -219,7 +234,8 @@
     </div>
     {% endif %}
   </div>
-</div>
+    </div>
+    </div>
 
 <script type="text/javascript">
   // called from base_js.html

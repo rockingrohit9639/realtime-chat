@@ -51,7 +51,7 @@ class AccountUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Account
-        fields = ('username', 'email', 'profile_image', 'hide_email' )
+        fields = ('username', 'email', 'bio', 'profile_image', 'hide_email' )
 
     def clean_email(self):
         email = self.cleaned_data['email'].lower()
@@ -73,6 +73,7 @@ class AccountUpdateForm(forms.ModelForm):
         account = super(AccountUpdateForm, self).save(commit=False)
         account.username = self.cleaned_data['username']
         account.email = self.cleaned_data['email'].lower()
+        account.bio = self.cleaned_data['bio']
         account.profile_image = self.cleaned_data['profile_image']
         account.hide_email = self.cleaned_data['hide_email']
         if commit:

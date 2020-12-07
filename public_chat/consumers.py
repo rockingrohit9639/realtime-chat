@@ -36,7 +36,6 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 			if command == "send":
 				if len(content["message"].lstrip()) != 0:
 					await self.send_room(content["room_id"], content["message"])
-				# raise ClientError(422,"You can't send an empty message.")
 			elif command == "join":
 				# Make them join the room
 				await self.join_room(content["room"])
@@ -47,11 +46,11 @@ class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 				await self.display_progress_bar(True, content["room_id"])
 				room = await get_room_or_error(content['room_id'])
 				payload = await get_room_chat_messages(room, content['page_number'])
-				if payload != None:
+				if payload is not None:
 					payload = json.loads(payload)
 					await self.send_messages_payload(payload['messages'], payload['new_page_number'], content["room_id"])
 				else:
-					raise ClientError(204, "Something went wrong retrieving the chatroom messages.")
+					raise ClientError("FETCH_MSG_ERROR", "Something went wrong retrieving the chatroom messages.")
 				await self.display_progress_bar(False, content["room_id"])
 		except ClientError as e:
 			await self.display_progress_bar(False, content["room_id"])

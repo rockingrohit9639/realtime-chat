@@ -57,6 +57,7 @@
 		cursor: pointer;
 		background-color: var(--secondary-text-color)
 	}
+
 	.notify-badge{
 		position: absolute;
 		background: transparent;
@@ -73,10 +74,31 @@
 		margin-top:-15px;
 		margin-right: -25px;
 	}
+
 	#id_notifications_spinner{
 		margin-top: 20px;
 		margin-bottom: 20px;
 	}
+    .links a{
+        text-decoration: none;
+    }
+
+    .links{
+        border: 1px solid #3616f5;
+        padding: 8px 0;
+    }
+
+    .register_btn{
+        color: #fff;
+        background: #3616f5;
+        padding: 10px;
+    }
+
+    .register_btn:hover{
+        color: white;
+        box-shadow: 0 1px 8px -2px #3616f5;
+    }
+
 </style>
 
 
@@ -97,7 +119,7 @@
 
 		<div class="d-flex flex-row-reverse flex-grow-1">
 
-			<nav class="">
+			<nav class="nav_bar">
 				{% if request.user.is_authenticated %}
 					<div class="dropdown dropleft show p-2">
 						<div class="d-flex flex-row">
@@ -130,8 +152,10 @@
 
 					</div>
 				{% else %}
-					<a class="p-2 text-dark" href="{% url 'login' %}">Login</a>
-					<a class="btn btn-outline-primary" href="{% url 'register' %}">Register</a>
+                    <div class="links">
+                        <a class="pl-2 pr-2 text-dark" href="{% url 'login' %}">Login</a>
+                        <a class="register_btn" href="{% url 'register' %}"> Register </a>
+                    </div>
 				{% endif %}
 			</nav>
 		</div>
@@ -162,7 +186,7 @@
 					</div>
 				</div>
 				{% else %}
-					<a class="p-2 text-dark" href="{% url 'login' %}">Login</a>
+					<a class="login_btn p-2 text-dark" href="{% url 'login' %}">Login</a>
 					<a class="btn btn-outline-primary m-2" href="{% url 'register' %}">Register</a>
 				{% endif %}
 			</nav>

@@ -7,7 +7,7 @@ Register
 
 {% block content %}
 
-
+<!--
 <style type="text/css">
 
   .card-signin {
@@ -35,41 +35,132 @@ Register
 
 
 </style>
+-->
 
-<div class="container-fluid">
-	<div class="row justify-content-center">
-		<div class="card card-signin">
-		  <div class="card-body">
-		    <form class="form-signin"  method="post">{% csrf_token %}
-				<div class="d-flex flex-column pb-3">
-				<img class="img-fluid mx-auto d-block" src="{% static 'basic/user.png' %}" alt="logo" width="72" height="72">
-				</div>
-				<input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-				<input type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" required>
+        .row{
+            background: #ffffff;
+            border-radius: 10px;
+        }
 
-				<input type="password" name="password1" id="inputPassword1" class="form-control" placeholder="Password" required>
+        .signup_btn{
+            border: none;
+            outline: none;
+            background: #3616f5;
+            padding: 10px 0;
+            font-size: 20px;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px -4px #3616f5;
+            transition: 0.2s ease-in-out;
+        }
 
-				<input type="password" name="password2" id="inputPassword2" class="form-control" placeholder="Confirm password" required>
+        .signup_btn:hover{
+            background: #ffb202;
+            box-shadow: 0 4px 10px -4px #ffb202;
+        }
 
-				{% for field in registration_form %}
-				<p>
-				{% for error in field.errors %}
-				<p style="color: red">{{ error }}</p>
-				{% endfor %}
-				</p>
-				{% endfor %}
-				{% if registration_form.non_field_errors %}
-				<div style="color: red">
-					<p>{{registration_form.non_field_errors}}</p>
-				</div>
+        .form-control{
+            border: none;
+            background: transparent;
+        }
 
-				{% endif %}
+        .inputs{
+            background: #f7fafc;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 5px;
+        }
 
-				<button class="btn btn-lg btn-primary my-2 btn-block" type="submit">Register</button>
-				</form>
-		  </div>
-		</div>
-	</div>
-</div>
+        .inputs input:focus,
+        .inputs input:active{
+            box-shadow: none;
+            background: transparent;
+        }
+
+
+
+        .material-icons{
+            opacity: 0.5;
+        }
+
+        .form-signin a{
+            text-decoration: none;
+        }
+
+
+    </style>
+
+    <section class="login_form my-4 mx-5">
+        <div class="container">
+            <div class="row p-5">
+
+                <div class="col-lg-7">
+                    <h4 class="font-weight-bold py-3">Register Now</h4>
+                     <form class="form-signin" method="post">{% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-lg-7 inputs mb-2 d-flex">
+                                <span class="material-icons my-auto">alternate_email</span>
+                                <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" autocomplete="off" required autofocus>
+                            </div>
+                        </div>
+
+                     <div class="form-row">
+                            <div class="col-lg-7 inputs d-flex">
+                                <span class="material-icons my-auto">account_circle</span>
+                                <input type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" autocomplete="off" required>
+                            </div>
+                        </div>
+
+                         <div class="form-row">
+                            <div class="col-lg-7 inputs d-flex mt-2">
+                                <span class="material-icons my-auto">lock</span>
+                                <input type="password" name="password1" id="inputPassword1" class="form-control" placeholder="Password" autocomplete="off" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-lg-7 inputs d-flex mt-2">
+                                <span class="material-icons my-auto">lock</span>
+                                <input type="password" name="password2" id="inputPassword2" class="form-control" placeholder="Confirm password" autocomplete="off" required>
+                            </div>
+                        </div>
+
+                         <div class="form-row">
+                            <div class="col-lg-7">
+                                <button class="signup_btn my-2 btn-block" type="submit">Register</button>
+                            </div>
+                        </div>
+
+                         {% for field in registration_form %}
+                            <p>
+                            {% for error in field.errors %}
+                            <p style="color: red">{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                        {% if registration_form.non_field_errors %}
+                        <div style="color: red">
+                            <p>{{registration_form.non_field_errors}}</p>
+                        </div>
+                        {% endif %}
+
+                         <p class="mt-2"> Already have an account ? <a class="link" href="{% url 'login' %}">Login Now</a> </p>
+
+                     </form>
+                </div>
+
+                <div class="col-lg-5">
+                    <img src="{% static 'basic/signup.png' %}" class="img-fluid" alt="login.png">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
 {% endblock content %}

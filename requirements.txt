@@ -1,10 +1,39 @@
+aioredis==1.3.1
 asgiref @ file:///tmp/build/80754af9/asgiref_1605055780383/work
+async-timeout==3.0.1
+attrs==20.3.0
+autobahn==20.7.1
+Automat==20.2.0
 certifi==2020.11.8
+cffi==1.14.4
+channels==3.0.2
+channels-redis==3.2.0
+chardet==3.0.4
+constantly==15.1.0
+cryptography==3.2.1
+daphne==3.0.1
 Django @ file:///tmp/build/80754af9/django_1605066529526/work
+hiredis==1.1.0
+hyperlink==20.0.1
+idna==2.10
+incremental==17.5.0
+msgpack==1.0.0
 numpy==1.19.4
 opencv-python==4.4.0.46
 Pillow==8.0.1
 psycopg2 @ file:///C:/ci/psycopg2_1594305209841/work
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycparser==2.20
+PyHamcrest==2.0.2
+pyOpenSSL==20.0.0
 pytz==2020.1
+requests==2.25.0
+service-identity==18.1.0
+six==1.15.0
 sqlparse @ file:///tmp/build/80754af9/sqlparse_1602184451250/work
+Twisted==20.3.0
+txaio==20.4.1
+urllib3==1.26.2
 wincertstore==0.2
+zope.interface==5.2.0

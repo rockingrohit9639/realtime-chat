@@ -32,6 +32,11 @@
         border-bottom: 1px solid #000;
     }
 
+    .search-bar button:focus,
+    .search-bar button:active{
+        box-shadow: none;
+    }
+
     .scrollable-menu {
 		height: auto;
 		max-height: 90vh;
@@ -140,6 +145,7 @@
 		</h5>
 		<form class="search-bar justify-content-start" onsubmit="return executeQuery();">
 			<input type="text" class="form-control" name="q" id="id_q_small" placeholder="Search...">
+            <button class="btn"> <span class="material-icons pt-1">search</span> </button>
 		</form>
 		<div class="d-flex flex-row-reverse flex-grow-1">
 			<nav class="">
@@ -242,6 +248,7 @@
 	}
 </script>
 
+<!-- Executing basic queries -->
 <script type="text/javascript">
 
 	function executeQuery() {

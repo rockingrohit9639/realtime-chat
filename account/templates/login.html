@@ -8,64 +8,138 @@ Login
 {% block content %}
 
 
-<style type="text/css">
+{#<style type="text/css">#}
+{##}
+{#  .card-signin {#}
+{#	  width: 100%;#}
+{#	  max-width: 400px;#}
+{#	  padding: 15px;#}
+{#	  margin: auto;#}
+{#  }#}
+{##}
+{#  .form-signin input[type="email"] {#}
+{#    margin-bottom: 10px;#}
+{#    border-bottom-right-radius: 0;#}
+{#    border-bottom-left-radius: 0;#}
+{#  }#}
+{#  .form-signin input[type="password"] {#}
+{#    margin-bottom: -1px;#}
+{#    border-top-left-radius: 0;#}
+{#    border-top-right-radius: 0;#}
+{#  }#}
+{##}
+{##}
+{#</style>#}
 
-  .card-signin {
-	  width: 100%;
-	  max-width: 400px;
-	  padding: 15px;
-	  margin: auto;
-  }
+    <style type="text/css">
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  .form-signin input[type="email"] {
-    margin-bottom: 10px;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-  .form-signin input[type="password"] {
-    margin-bottom: -1px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
+        .row{
+            background: #ffffff;
+            border-radius: 10px;
+        }
+
+        .login_btn{
+            border: none;
+            outline: none;
+            background: #ff4b34;
+            padding: 10px 0;
+            font-size: 20px;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px -4px #ff4b34;
+            transition: 0.2s ease-in-out;
+        }
+        .form-control{
+            border: none;
+            background: transparent;
+        }
+
+        .inputs{
+            background: #f7fafc;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .inputs input:focus,
+        .inputs input:active{
+            box-shadow: none;
+        }
+
+        .login_btn:hover{
+            background: #02bad4;
+            box-shadow: 0 4px 10px -4px #02bad4;
+        }
+
+        .material-icons{
+            opacity: 0.5;
+        }
+
+        .form-signin a{
+            text-decoration: none;
+        }
 
 
-</style>
+    </style>
 
-<div class="container-fluid">
-	<div class="row justify-content-center">
-		<div class="card card-signin">
-		  <div class="card-body">
-		    <form class="form-signin" method="post">{% csrf_token %}
-				<div class="d-flex flex-column pb-3">
+    <!--
 				<img class="img-fluid mx-auto d-block" src="{% static 'basic/user.png' %}" alt="logo" width="72" height="72">
-				</div>
-				<input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+    -->
 
-				<input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+    <section class="login_form my-4 mx-5">
+        <div class="container">
+            <div class="row p-5">
+                <div class="col-lg-5">
+                    <img src="{% static 'basic/login.png' %}" class="img-fluid" alt="login.png">
+                </div>
+                <div class="col-lg-7">
+                    <h4 class="font-weight-bold py-3">Login into your account</h4>
+                     <form class="form-signin" method="post">{% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-lg-7 inputs d-flex">
+                                <span class="material-icons my-auto">alternate_email</span>
+                                <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" autocomplete="off" required>
+                            </div>
+                        </div>
 
-				{% for field in login_form %}
-				<p>
-				{% for error in field.errors %}
-				<p style="color: red">{{ error }}</p>
-				{% endfor %}
-				</p>
-				{% endfor %}
-				{% if login_form.non_field_errors %}
-				<div style="color: red">
-				<p>{{login_form.non_field_errors}}</p>
-				</div>
+                         <div class="form-row">
+                            <div class="col-lg-7 inputs d-flex mt-2">
+                                <span class="material-icons my-auto">lock</span>
+                                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                            </div>
+                        </div>
 
-				{% endif %}
+                         <div class="form-row">
+                            <div class="col-lg-7">
+                                <button class="login_btn mt-3 mb-5 btn-block" type="submit">Log in</button>
+                            </div>
+                        </div>
 
-				<button class="btn btn-lg btn-primary my-2 btn-block" type="submit">Log in</button>
-				</form>
+                         {% for field in login_form %}
+                            {% for error in field.errors %}
+                            <p style="color: red">{{ error }}</p>
+                            {% endfor %}
+                         {% endfor %}
 
-				<div class="d-flex flex-column my-4">
-					<a class="m-auto" href="{% url 'password_reset' %}">Reset password</a>
-				</div>
-		  </div>
-		</div>
+                         {% if login_form.non_field_errors %}
+                            <div style="color: red">
+                            <p>{{login_form.non_field_errors}}</p>
+                            </div>
+                         {% endif %}
 
-	</div>
-</div>
+                         <a class="link" href="{% url 'password_reset' %}">Reset password</a>
+                         <p class="mt-2"> Does not have an account ? <a class="link" href="{% url 'register' %}">Register Now</a> </p>
+
+                     </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
 {% endblock content %}

@@ -19,7 +19,6 @@ class PrivateChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
         # Called while handshaking with websocket
-        print("ChatConsumer: connect: " + str(self.scope["user"]))
 
         await self.accept()
 
@@ -28,7 +27,6 @@ class PrivateChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content):
         # Messages will have a "command" key we can switch on
-        print("ChatConsumer: receive_json")
         command = content.get("command", None)
         try:
             # Joining the room

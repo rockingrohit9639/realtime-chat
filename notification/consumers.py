@@ -12,13 +12,13 @@ from .models import Notification
 from .utils import LazyNotificationEncoder
 from private_chat.models import UnreadChatRoomMessages
 from private_chat.utils import calculate_timestamp
+from posts.models import Like
 from .constants import *
 
 
 class NotificationConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
-        print("Notification Consumer : connect - ", str(self.scope['user']))
         await self.accept()
 
     async def disconnect(self, code):
@@ -26,7 +26,6 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content, **kwargs):
         command = content.get("command", None)
-        print("Notification Consumer : receive_json command - ", command)
 
         try:
             if command == "get_general_notifications":
@@ -102,11 +101,18 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
                     print("UNREAD CHAT MESSAGE COUNT EXCEPTION: " + str(e))
                     pass
 
+            # elif command == "get_like_notifications":
+            #     payload = await get_likes_notifications(self.scope['user'])
+            #     if payload is None:
+            #         print("No like notifications")
+            #     else:
+            #         payload = json.loads(payload)
+            #         await self.send_like_notification_payload(payload['notifications'])
+
         except ClientError as e:
             print("Exception : ", str(e))
 
     async def display_progress_bar(self, is_displayed):
-        print("Notification Consumer : display_progress_bar", is_displayed)
         await self.send_json(
             {
                 "progress_bar": is_displayed,
@@ -182,13 +188,21 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
             },
         )
 
+    async def send_like_notification_payload(self, notifications):
+        await self.send_json({
+            "type": "like",
+            "notifications": notifications
+        })
+
 
 @database_sync_to_async
 def get_general_notifications(user, page_number):
     if user.is_authenticated:
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_list_ct, friend_request_ct]).order_by("-timestamp")
+        like_ct = ContentType.objects.get_for_model(Like)
+
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_list_ct, friend_request_ct, like_ct]).order_by("-timestamp")
         p = Paginator(notifications, DEFAULT_NOTIFICATION_PAGE_SIZE)
 
         payload = {}
@@ -252,13 +266,14 @@ def decline_friend_request(user, notification_id):
 def refresh_general_notifications(user, oldest_timestamp, newest_timestamp):
     payload = {}
     if user.is_authenticated:
-        oldest_ts = oldest_timestamp[0:oldest_timestamp.find("+")] # remove timezone because who cares
-        oldest_ts = datetime.strptime(oldest_ts, '%Y-%m-%d %H:%M:%S.%f')
-        newest_ts = newest_timestamp[0:newest_timestamp.find("+")] # remove timezone because who cares
-        newest_ts = datetime.strptime(newest_ts, '%Y-%m-%d %H:%M:%S.%f')
+        newest_timestamp = datetime.now()
+
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct], timestamp__gte=oldest_ts, timestamp__lte=newest_ts).order_by('-timestamp')
+
+        like_ct = ContentType.objects.get_for_model(Like)
+        
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct], timestamp__gte=oldest_timestamp, timestamp__lte=newest_timestamp).order_by('-timestamp')
 
         s = LazyNotificationEncoder()
         payload['notifications'] = s.serialize(notifications)
@@ -273,17 +288,18 @@ def get_new_general_notifications(user, newest_timestamp):
     payload = {}
 
     if user .is_authenticated:
-        timestamp = newest_timestamp[0:newest_timestamp.find("+")] # removing timezone
-        timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
+        newest_timestamp = datetime.now()
 
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
+        like_ct = ContentType.objects.get_for_model(Like)
 
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct], timestamp__gt=timestamp, is_read=False).order_by('-timestamp')
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct], timestamp__lte=newest_timestamp, is_read=False).order_by('-timestamp')
 
         s = LazyNotificationEncoder()
 
         payload['notifications'] = s.serialize(notifications)
+        print(payload)
 
     else:
         raise ClientError("AUTH_ERROR", "User must be authenticated.")
@@ -296,7 +312,9 @@ def get_unread_general_notification_count(user):
     if user.is_authenticated:
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct])
+        like_ct = ContentType.objects.get_for_model(Like)
+
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct])
 
         unread_count = 0
         if notifications:

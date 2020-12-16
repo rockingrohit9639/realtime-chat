@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from datetime import datetime
 
 
 class Notification(models.Model):
@@ -17,7 +18,7 @@ class Notification(models.Model):
     # What is the notification
     statement = models.CharField(max_length=256, unique=False, blank=True, null=True)
 
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=datetime.now())
 
     is_read = models.BooleanField(default=False)
 

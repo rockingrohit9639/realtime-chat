@@ -38,11 +38,11 @@
 	// Keep track of what notifications are currently visible to the user.
 	let generalCachedNotifList = new List([])
 
-
 	function submitGeneralNotificationToCache(notification){
 		let result = generalCachedNotifList.filter(function(n){
 			return n['notification_id'] === notification['notification_id']
 		})
+
 		// This notification does not already exist in the list
 		if(result.length === 0){
 			generalCachedNotifList.push(notification)
@@ -88,9 +88,11 @@
 
     // Handling general notifications
 	function handleGeneralNotificationsData(notifications, new_page_number){
+
 		if(notifications.length > 0){
-			clearNoGeneralNotificationsCard()
+			clearNoGeneralNotificationsCard();
 			notifications.forEach(notification => {
+
 				submitGeneralNotificationToCache(notification);
 
                 setGeneralOldestTimestamp(notification['timestamp']);
@@ -99,6 +101,17 @@
             setGeneralPageNumber(new_page_number)
 		}
 	}
+
+	function handleLikePayload(notifications){
+        if(notifications.length > 0){
+            clearNoGeneralNotificationsCard();
+            notifications.forEach(notification => {
+                submitGeneralNotificationToCache(notification);
+                // createAppendLikeNotification(notification);
+            })
+        }
+    }
+
 
 	// Handling new chat notifications
 	function handleNewGeneralNotificationsData(notifications){
@@ -121,6 +134,7 @@
 		})
 		// This notification does not already exist in the list
 		if(result.length === 0){
+		    console.log(notification)
 			generalCachedNotifList.push(notification)
 
 			// append to top of list
@@ -152,8 +166,8 @@
 		switch(notification['notification_type']) {
 
 			case "FriendRequest":
-				let notificationContainer = document.getElementById("id_general_notifications_container")
-				let card = createFriendRequestElement(notification)
+				notificationContainer = document.getElementById("id_general_notifications_container")
+				card = createFriendRequestElement(notification)
 				notificationContainer.insertBefore(card, notificationContainer.childNodes[0]);
 				break;
 
@@ -162,6 +176,12 @@
 				card = createFriendListElement(notification)
 				notificationContainer.insertBefore(card, notificationContainer.childNodes[0]);
 				break;
+				
+            case "Like":
+                notificationContainer = document.getElementById("id_general_notifications_container")
+                card = createLikeElement(notification);
+                notificationContainer.appendChild(card);
+                break;
 
 			default:
 				// code block
@@ -186,6 +206,11 @@
 				card = createFriendListElement(notification)
 				notificationContainer.appendChild(card)
 				break;
+            case "Like":
+                notificationContainer = document.getElementById("id_general_notifications_container")
+                card = createLikeElement(notification);
+                notificationContainer.appendChild(card);
+                break;
 
 			default:
 				// code block
@@ -247,33 +272,60 @@
 
 	function createFriendListElement(notification){
 		let card = createGeneralNotificationCard();
-		card.id = assignGeneralCardId(notification)
+		card.id = assignGeneralCardId(notification);
 		card.addEventListener("click", function(){
 			generalRedirect(notification['actions']['redirect_url'])
-		})
+		});
 
-		let div1 = document.createElement("div")
-		div1.classList.add("d-flex", "flex-row", "align-items-start")
-		div1.id = assignGeneralDiv1Id(notification)
+		let div1 = document.createElement("div");
+		div1.classList.add("d-flex", "flex-row", "align-items-start");
+		div1.id = assignGeneralDiv1Id(notification);
 
 		let img = createGeneralProfileImageThumbnail(notification);
-		div1.appendChild(img)
+		div1.appendChild(img);
 
-		let span = document.createElement("span");
-		span.classList.add("align-items-start", "pt-1", "m-auto")
+		let span = document.createElement("span");;
+		span.classList.add("align-items-start", "pt-1", "m-auto");
 		if(notification['statement'].length > 50){
-			span.innerHTML = notification['statement'].slice(0, 50) + "..."
+			span.innerHTML = notification['statement'].slice(0, 50) + "...";
 		}
 		else{
-			span.innerHTML = notification['statement']
+			span.innerHTML = notification['statement'];
 		}
-		span.id = assignGeneralStatementId(notification)
-		div1.appendChild(span)
-		card.appendChild(div1)
-		card.appendChild(createGeneralTimestampElement(notification))
+		span.id = assignGeneralStatementId(notification);
+		div1.appendChild(span);
+		card.appendChild(div1);
+		card.appendChild(createGeneralTimestampElement(notification));
 
-		return card
+		return card;
 	}
+
+	function createLikeElement(notification){
+	    let card = createGeneralNotificationCard();
+	    card.id = assignGeneralCardId(notification);
+
+	    let div1 = document.createElement("div");
+		div1.classList.add("d-flex", "flex-row", "align-items-start");
+		div1.id = assignGeneralDiv1Id(notification);
+
+		let img = createGeneralProfileImageThumbnail(notification);
+		div1.appendChild(img);
+
+		let span = document.createElement("span");;
+		span.classList.add("align-items-start", "pt-1", "m-auto");
+		if(notification['statement'].length > 50){
+			span.innerHTML = notification['statement'].slice(0, 50) + "...";
+		}
+		else{
+			span.innerHTML = notification['statement'];
+		}
+		span.id = assignGeneralStatementId(notification);
+		div1.appendChild(span);
+		card.appendChild(div1);
+		card.appendChild(createGeneralTimestampElement(notification));
+
+		return card;
+    }
 
 	// Creating a friend request element
 	function createFriendRequestElement(notification){
@@ -398,7 +450,12 @@
 	function createGeneralTimestampElement(notification){
 		let timestamp = document.createElement("p");
 		timestamp.classList.add("small", "pt-2", "timestamp-text");
-		timestamp.innerHTML = notification['natural_timestamp'];
+
+		if(notification.notification_type === "Like"){
+		    timestamp.innerHTML = notification['timestamp'];
+        }else{
+		    timestamp.innerHTML = notification['natural_timestamp'];
+        }
 		timestamp.id = assignGeneralTimestampId(notification);
 		return timestamp;
 	}
@@ -558,6 +615,8 @@
 	}
 
 	startGeneralNotificationService();
+
+
 
     function getNewGeneralNotifications(){
 		let newestTimestamp = document.getElementById("id_general_newest_timestamp").innerHTML

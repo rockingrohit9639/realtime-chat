@@ -6,7 +6,6 @@ from django.urls import path
 from public_chat.consumers import PublicChatConsumer
 from private_chat.consumers import PrivateChatConsumer
 from notification.consumers import NotificationConsumer
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "RealtimeChatPlayground.settings")
 
 application = ProtocolTypeRouter({
@@ -16,7 +15,7 @@ application = ProtocolTypeRouter({
 			[
 				path('', NotificationConsumer.as_asgi()),
 				path('public_chat/<room_id>/', PublicChatConsumer.as_asgi()),
-				path('private_chat/<room_id>/', PrivateChatConsumer.as_asgi()),
+				path('private_chat/<room_id>/', PrivateChatConsumer.as_asgi())
 			]
 		)
 	)

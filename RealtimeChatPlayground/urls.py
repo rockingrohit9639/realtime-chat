@@ -21,7 +21,8 @@ urlpatterns = [
     path('logout/', handle_logout, name="logout"),
     path('register/', register_view, name="register"),
     path('search/', account_search_view, name="search"),
-    path('', include('personal.urls')),
+    path('', include('posts.urls')),
+    path('public-room/', include('personal.urls')),
 
 
     # Password reset and change urls

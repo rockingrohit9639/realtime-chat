@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
+    <style>
+        .new_post{
+            background: #ffffff;
+            border-radius: 10px;
+        }
+        .push-modal{
+            background: #f2f2f2;
+            width: 40rem;
+            border-radius: 50px;
+            user-select: none;
+            padding: 10px 20px;
+            color: #617284;
+        }
+        .push-modal:hover{
+            background: #e5e6ea;
+            cursor: pointer;
+        }
+
+        .Btn{
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .Btn:hover{
+            background: #f2f2f2;
+        }
+
+        .like-form button{
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+
+        .photo{
+            color: #42b35d;
+        }
+
+        .feeling{
+            color: #f7b928;
+        }
+
+        .post{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .f{
+            color: #9f9696;
+            padding-left: 5px;
+        }
+
+        .friend_requests{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .friends{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 25rem;
+            overflow: scroll;
+        }
+
+        .form-group textarea{
+            border: none;
+            outline: none;
+            font-size: 2rem;
+        }
+
+        .form-group textarea:active,
+        .form-group textarea:focus{
+            box-shadow: none;
+        }
+
+        .feeling_icon span{
+            color: #46b15a;
+        }
+
+
+
+        /*
+        #like{
+            color: #1878f4;
+        }*/
+
+    </style>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="new_post shadow-sm">
+                    <div class="d-flex pl-3 pt-3 pr-3">
+                        <div class="profile mt-2 mr-2">
+                            {% if request.user.is_authenticated %}
+                                <div class="">
+								<a href="{% url 'account:account' user_id=request.user.pk %}"><img class="account-image rounded-circle my-auto" src="{{request.user.profile_image.url}}" alt="avatar" width="40" height="40"></a>
+							</div>
+                            {% endif %}
+
+                        </div>
+                        <div class="input mt-2" data-toggle="modal" data-target="#newPostModal">
+                            <div>
+                                <p class="push-modal">What's on your mind?</p>
+                            </div>
+                        <hr>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-around pb-2">
+                        <div class="Btn d-flex" data-toggle="modal" data-target="#newPostModal">
+                            <span class="material-icons photo">
+                                add_photo_alternate
+                            </span>
+                            <span> Photo </span>
+                        </div>
+                        <div class="Btn d-flex" data-toggle="modal" data-target="#newPostModal">
+                            <span class="material-icons feeling">
+                                emoji_emotions
+                            </span>
+                            <span class="pl-2"> Feelings </span>
+                        </div>
+                    </div>
+
+                </div>
+                {% for post in posts %}
+                    <div class="post mt-4 shadow-sm">
+                        <div class="user d-flex">
+                            <a href="{% url 'account:account' user_id=post.author.id %}"><img class="account-image rounded-circle my-auto" src="{{  post.author.profile_image.url }}" alt="avatar" width="40" height="40"></a>
+                            <p class="pl-3 pt-2"><strong> {{ post.author }} </strong> <span class="f"> feeling {{ post.feeling }} </span> </p>
+                        </div>
+
+                        <div class="content">
+                            <p class="mt-2"> {{ post.content }} </p>
+                            {% if post.post_image %}
+                                <img class="img-fluid" src="{{ post.post_image.url }}"><br>
+                            {% endif %}
+                            <p class="text-muted pt-2" id="likeCount{{ post.id }}"> {{ post.get_num_likes }} Likes </p>
+                        </div>
+                        <hr>
+
+                        <div class="actions d-flex justify-content-around">
+                                <form class="like-form" id="{{ post.id }}" method="POST" action="like/" onsubmit="handleLikeUnlike(event, this)">{% csrf_token %}
+                                    <input type="hidden" name="post_id" value={{post.id}}>
+                                    <button class="like d-flex Btn" type="submit">
+                                        {% if request.user in post.liked.all %}
+                                            <span class="material-icons pr-2 text-primary" id="like-{{ post.id }}">
+                                            thumb_down
+                                            </span>
+                                            <span id="likeText-{{ post.id }}" class="text-primary like-btn{{ post.id }}"> Unlike </span>
+                                        {% else %}
+                                            <span class="material-icons pr-2" id="like-{{ post.id }}">
+                                            thumb_up
+                                            </span>
+                                            <span id="likeText-{{ post.id }}" class="like-btn{{ post.id }}"> Like </span>
+                                        {% endif %}
+                                    </button>
+
+                                </form>
+
+                            <div class="comment d-flex Btn">
+                                <span class="material-icons pr-2" id="comment">
+                                    mode_comment
+                                </span>
+                                <span> Comment </span>
+                            </div>
+
+                            <div class="share d-flex Btn">
+                                <span class="material-icons pr-2" id="share">
+                                    share
+                                </span>
+                                <span> Share </span>
+                            </div>
+
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if request.user.is_authenticated %}
+            <div class="col-md-4">
+
+                {% if friend_requests %}
+                <div class="friend_requests shadow-sm">
+                    <h4> Friend Requests </h4>
+                    <hr>
+                    {% for friend_request in friend_requests %}
+                        {{ friend_request }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if friends %}
+                    <div class="friends shadow-sm" data-bs-spy="scroll">
+                    <h4> Friends </h4>
+                    <hr>
+                    {% for friend in friends %}
+                        <div class="friend_info mt-3 d-flex">
+                            <div class="profile_image">
+                                <a href="{% url 'private_chat:private chat view' %}"><img class="account-image rounded-circle my-auto" src="{{ friend.profile_image.url }}" alt="avatar" width="40" height="40"></a>
+                            </div>
+                            <strong class="pt-2 pl-4"> {{ friend.username }} </strong>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+
+    <!-- Adding new post modal -->
+    <div class="modal fade" id="newPostModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel"> Create Post </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <a href="{% url 'account:account' user_id=request.user.pk %}"><img class="account-image rounded-circle my-auto" src="{{request.user.profile_image.url}}" alt="avatar" width="40" height="40"></a>
+              <strong class="pl-2"> {{ request.user.username }} </strong>
+
+              <form method="POST" action="add/" enctype='multipart/form-data'>{% csrf_token %}
+
+                  <div class="form-group mt-2">
+                    <div class="form-group">
+                        <textarea class="form-control" id="content" name="content" rows="3" placeholder="What's on your mind? " required></textarea>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-around">
+                       <div class="form-group pt-3">
+                           <label for="file" class="feeling_icon">
+                               <span class="material-icons">add_photo_alternate</span>
+                           </label>
+                           <input type="file" name="file" id="file" hidden/>
+                      </div>
+
+                      <div class="form-group pt-3">
+                          <select class="custom-select my-1 mr-sm-2" id="feeling" name="feeling">
+                            <option selected value="None">None</option>
+                            <option value="Happy">Happy</option>
+                            <option value="Sad">Sad</option>
+                          </select>
+                      </div>
+
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block"> Post </button>
+              </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% block javascript %}
+        <script>
+            function handleLikeUnlike(e, elem){
+                e.preventDefault();
+                let post_id = elem.id;
+                let url = elem.action;
+                let likeText = $(`#likeText-${post_id}`);
+                let icon = $(`#like-${ post_id }`);
+                let likesCount = $(`#likeCount${post_id}`);
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                        'post_id':post_id,
+                    },
+                    success: function(response) {
+                        likesCount.text(response.likes + ' likes');
+                        likeText.text(response.value);
+                        icon.text(response.icon);
+                        console.log(response)
+                        if(response.value === "Unlike"){
+                            //console.log()
+                            icon.addClass("text-primary");
+                            likeText.addClass("text-primary");
+                        }
+                        else if(response.value === "Like"){
+                            icon.removeClass("text-primary");
+                            likeText.removeClass("text-primary");
+                        }
+                    },
+
+                    error: function(response) {
+                        console.log('error', response)
+                    }
+                })
+
+            }
+
+        </script>
+    {% endblock %}
+
+
+{% endblock %}

@@ -19,7 +19,6 @@ DEFAULT_ROOM_CHAT_MESSAGE_PAGE_SIZE = 10
 class PublicChatConsumer(AsyncJsonWebsocketConsumer):
 
 	async def connect(self):
-		print("PublicChatConsumer: connect: " + str(self.scope["user"]))
 		await self.accept()
 		self.room_id = None
 

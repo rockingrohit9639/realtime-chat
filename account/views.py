@@ -15,6 +15,7 @@ from django.core import files
 from friend.models import FriendList, FriendRequest
 from friend.utils import get_request_or_not
 from friend.friend_request_status import FriendRequestStatus
+from django.contrib import messages
 
 
 TEMP_PROFILE_IMAGE_NAME = "temp_profile_image.png"
@@ -43,6 +44,8 @@ def register_view(request, *args, **kwargs):
             return redirect("/")
         else:
             context['registration_form'] = form
+
+    messages.success(request, 'Your account has been successfully created.')
     return render(request, 'register.html', context)
 
 
@@ -61,17 +64,18 @@ def handle_login(request, *args, **kwargs):
             user = authenticate(email=email, password=password)
             if user:
                 login(request, user)
+                messages.success(request, 'You have been logged in successfully.')
                 destination = get_redirect_if_exists(request)
                 if destination:
                     return redirect(destination)
         else:
             context['login_form'] = form
-
     return render(request, 'login.html', context)
 
 
 def handle_logout(request):
     logout(request)
+    messages.success(request, 'Successfully logged out.')
     return redirect("/")
 
 
@@ -183,6 +187,7 @@ def edit_account_view(request, *args, **kwargs):
     user_id = kwargs.get("user_id")
     account = Account.objects.get(pk=user_id)
     if account.pk != request.user.pk:
+        messages.error(request, 'You are not allowed to edit this profile.')
         return HttpResponse("You are not allowed to edit this profile.")
     context = {}
     if request.POST:
@@ -214,6 +219,7 @@ def edit_account_view(request, *args, **kwargs):
         )
         context['form'] = form
     context['DATA_UPLOAD_MAX_MEMORY_SIZE'] = settings.DATA_UPLOAD_MAX_MEMORY_SIZE
+    messages.success(request, 'Account info updated successfully.')
     return render(request, "update_account.html", context)
 
 
@@ -267,7 +273,7 @@ def crop_image(request, *args, **kwargs):
             user.profile_image.delete()
 
             # Save the cropped image to user model
-            user.profile_image.save("profile_image.png", files.File(open(url, 'rb')))
+            user.profile_image.save()
             user.save()
 
             payload['result'] = "success"

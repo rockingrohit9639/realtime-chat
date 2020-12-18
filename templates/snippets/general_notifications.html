@@ -134,7 +134,6 @@
 		})
 		// This notification does not already exist in the list
 		if(result.length === 0){
-		    console.log(notification)
 			generalCachedNotifList.push(notification)
 
 			// append to top of list
@@ -148,7 +147,6 @@
 	}
 
 	function refreshGeneralNotificationsData(notifications){
-		// console.log(notifications)
 		if(notifications.length > 0){
 			clearNoGeneralNotificationsCard()
 			notifications.forEach(notification => {
@@ -180,7 +178,7 @@
             case "Like":
                 notificationContainer = document.getElementById("id_general_notifications_container")
                 card = createLikeElement(notification);
-                notificationContainer.appendChild(card);
+                notificationContainer.insertBefore(card, notificationContainer.childNodes[0]);
                 break;
 
 			default:

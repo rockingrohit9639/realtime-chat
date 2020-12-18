@@ -299,8 +299,6 @@ def get_new_general_notifications(user, newest_timestamp):
         s = LazyNotificationEncoder()
 
         payload['notifications'] = s.serialize(notifications)
-        print(payload)
-
     else:
         raise ClientError("AUTH_ERROR", "User must be authenticated.")
     return json.dumps(payload)

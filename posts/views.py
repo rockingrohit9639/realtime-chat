@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse
-from .models import Post, Like
+from .models import Post, Like, Comment
 from friend.models import FriendList, FriendRequest
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +12,7 @@ def home(request, *args, **kwargs):
     user = request.user
     if user.is_authenticated:
         posts = Post.objects.all().order_by("-published_date")
+        comments = Comment.objects.all().order_by("-timestamp")
 
         friend_list = FriendList.objects.get(user=user)
         friends = friend_list.friends.all()
@@ -21,6 +22,7 @@ def home(request, *args, **kwargs):
         context["posts"] = posts
         context["friends"] = friends
         context["friend_requests"] = friend_requests
+        context["comments"] = comments
 
     return render(request, "posts/index.html", context)
 
@@ -81,3 +83,23 @@ def like_post(request, *args, **kwargs):
     # return redirect("/")
 
 
+@login_required
+def comment_on_post(request, *args, **kwargs):
+    user = request.user
+    if request.POST:
+        post_id = request.POST.get('post_id')
+        comment = request.POST.get('comment')
+
+        post_obj = Post.objects.get(id=post_id)
+        new_comment = Comment(author=user, post=post_obj, comment=comment)
+        new_comment.save()
+
+        data = {
+            'status': "OK",
+            'username': user.username,
+            'profile_img': user.profile_image.url,
+            'comment': comment,
+            'post_id': post_id,
+        }
+        return JsonResponse(data, safe=False)
+    return HttpResponse("Not a valid request.")

@@ -62,10 +62,26 @@ class Like(models.Model):
         return "Like"
 
 
+class Comment(models.Model):
+    author = models.ForeignKey(Account, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    comment = models.CharField(max_length=255, null=False, blank=False)
+
+    notifications = GenericRelation(Notification)
+    timestamp = models.DateTimeField(default=datetime.now())
+
+    def __str__(self):
+        return self.comment[:20] + " by " + self.author.username
+
+    @property
+    def get_cname(self):
+        return "Comment"
+
+
 @receiver(post_save, sender=Like)
 def generate_notification(sender, instance, created, **kwargs):
     if created:
-        print(instance.post.author, instance.author)
         instance.notifications.create(
             target=instance.post.author,
             from_user=instance.author,
@@ -74,4 +90,16 @@ def generate_notification(sender, instance, created, **kwargs):
             content_type=instance,
         )
 
+
+@receiver(post_save, sender=Comment)
+def generate_comment_notification(sender, instance, created, **kwargs):
+    if created:
+        instance.notifications.create(
+            target=instance.post.author,
+            from_user=instance.author,
+            redirect_url="http://localhost:8000/",
+            statement=f"{instance.author.username} commented on your post.",
+            content_type=instance,
+            timestamp=instance.timestamp
+        )
 

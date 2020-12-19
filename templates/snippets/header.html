@@ -13,7 +13,7 @@
         cursor: pointer;
     }
 
-    #id_q_large{
+    #id_q{
         outline: none;
         border: none;
     }
@@ -34,6 +34,10 @@
 
     .icon:hover{
         color: #0c8bf0;
+    }
+
+    .search-bar input{
+        background: transparent;
     }
 
     .search-bar button:focus,
@@ -83,50 +87,53 @@
 		margin-top: 20px;
 		margin-bottom: 20px;
 	}
+
     .links a{
         text-decoration: none;
-    }
-
-    .links{
-        border: 1px solid #3616f5;
-        padding: 8px 0;
     }
 
     .register_btn{
         color: #fff;
         background: #3616f5;
         padding: 10px;
+        border-radius: 20px;
     }
 
     .register_btn:hover{
         color: white;
         box-shadow: 0 1px 8px -2px #3616f5;
     }
+    .navbar{
+        height: 6rem;
+    }
 
 </style>
 
 
-<!-- Header -->
-<div class="d-flex flex-column flex-lg-row p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-3">
+      <a class="navbar-brand" href="/"><h3> RealtimeChat Playground </h3></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-	<!-- MEDIUM+ SCREENS -->
-	<div class="d-none d-md-flex flex-row my-auto flex-grow-1 align-items-center">
-        <h2> ChatPlayground </h2>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a id="nav-link" class="p-2 text-dark"  href="/"><span class="material-icons icon">home</span></a>
+          </li>
+          <li class="nav-item">
+            <a id="nav-link" class="p-2 text-dark" href="public-room/"><span class="material-icons icon">connect_without_contact</span></a>
+          </li>
+        </ul>
 
-		<div class="mx-5 nav_links">
-        <a id="nav-link" class="p-2 text-dark"  href="/"><span class="material-icons icon">home</span></a>
-        <a id="nav-link" class="p-2 text-dark" href="public-room/"><span class="material-icons icon">connect_without_contact</span></a>
-		</div>
-
-		<form class="search-bar d-flex" id="id_search_form" onsubmit="return executeQuery();">
-			<input type="text" class="ml-4" name="q" id="id_q_large" placeholder="Search for friends...">
+        <form class="search-bar d-flex" id="id_search_form" onsubmit="return executeQuery();">
+			<input type="text" class="ml-4" name="q" id="id_q" placeholder="Search for friends...">
             <button class="btn"> <span class="material-icons pt-1">search</span> </button>
 		</form>
 
-		<div class="d-flex flex-row-reverse flex-grow-1">
+        <div class="d-flex flex-row-reverse flex-grow-1">
 
-			<nav class="nav_bar">
-				{% if request.user.is_authenticated %}
+            {% if request.user.is_authenticated %}
 					<div class="dropdown dropleft show p-2">
 						<div class="d-flex flex-row">
 							<div class="btn-group dropleft">
@@ -155,7 +162,7 @@
 								</div>
 							</div>
 						</div>
-
+                    </div>
 					</div>
 				{% else %}
                     <div class="links">
@@ -163,44 +170,8 @@
                         <a class="register_btn" href="{% url 'register' %}"> Register </a>
                     </div>
 				{% endif %}
-			</nav>
-		</div>
-	</div>
-	<!-- END MEDIUM+ SCREENS -->
-
-	<!-- SMALL SCREENS -->
-	<div class="d-flex d-md-none flex-column my-auto align-items-center">
-		<h5 class="font-weight-normal">
-		<a class="p-2 text-dark" href="/">Home</a>
-		</h5>
-		<form class="search-bar justify-content-start" onsubmit="return executeQuery();">
-			<input type="text" class="form-control" name="q" id="id_q_small" placeholder="Search...">
-            <button class="btn"> <span class="material-icons pt-1">search</span> </button>
-		</form>
-		<div class="d-flex flex-row-reverse flex-grow-1">
-			<nav class="">
-				{% if request.user.is_authenticated %}
-				<div class="dropdown dropleft p-2 mt-2">
-					<div class="d-flex flex-row">
-						<div class="btn-group dropleft">
-							<img class="account-image rounded-circle m-auto d-block dropdown-toggle" id="id_profile_links" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" src="{{request.user.profile_image.url}}" alt="logo" width="40" height="40">
-							<div class="dropdown-menu" aria-labelledby="id_profile_links">
-								<a class="dropdown-item" href="{% url 'account:account' user_id=request.user.id %}">Account</a>
-								<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-							</div>
-						</div>
-					</div>
-				</div>
-				{% else %}
-					<a class="login_btn p-2 text-dark" href="{% url 'login' %}">Login</a>
-					<a class="btn btn-outline-primary m-2" href="{% url 'register' %}">Register</a>
-				{% endif %}
-			</nav>
-	  	</div>
-	</div>
-	<!-- END SMALL SCREENS -->
-</div>
-
+        </div>
+    </nav>
 
 {% include 'snippets/general_notifications.html' %}
 {% include 'snippets/chat_notifications.html' %}
@@ -218,10 +189,6 @@
 		let data = JSON.parse(message.data);
 		console.log("Got notification websocket message. " + data.general_msg_type);
 
-		if(data.type){
-		    handleLikePayload(data.notifications);
-        }
-
 		if(data.general_msg_type === 0){
 			handleGeneralNotificationsData(data['notifications'], data['new_page_number']);
 		}
@@ -235,7 +202,6 @@
 		}
 
 		if(data.general_msg_type === 2){
-		    // console.log(data)
 			refreshGeneralNotificationsData(data['notifications']);
 		}
 
@@ -298,10 +264,8 @@
 
 	function executeQuery() {
 		let query = "";
-		query = document.getElementById('id_q_small').value;
-		if (query === ""){
-			query = document.getElementById('id_q_large').value;
-		}
+		query = document.getElementById('id_q').value;
+
 	    window.location.replace("{% url 'search' %}?q=" + query)
 	    return false
 	}

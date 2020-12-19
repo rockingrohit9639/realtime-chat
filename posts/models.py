@@ -85,7 +85,7 @@ def generate_notification(sender, instance, created, **kwargs):
         instance.notifications.create(
             target=instance.post.author,
             from_user=instance.author,
-            redirect_url="http://localhost:8000/",
+            redirect_url="http://localhost:8000/" + "#" + str(instance.post.id),
             statement=f"{instance.author.username} liked your post.",
             content_type=instance,
         )
@@ -97,7 +97,7 @@ def generate_comment_notification(sender, instance, created, **kwargs):
         instance.notifications.create(
             target=instance.post.author,
             from_user=instance.author,
-            redirect_url="http://localhost:8000/",
+            redirect_url="http://localhost:8000/" + "#" + str(instance.post.id),
             statement=f"{instance.author.username} commented on your post.",
             content_type=instance,
             timestamp=instance.timestamp

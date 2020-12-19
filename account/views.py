@@ -38,14 +38,12 @@ def register_view(request, *args, **kwargs):
             account = authenticate(email=email, password=raw_password)
             login(request, account)
             destination = kwargs.get("next")
-
+            messages.success(request, 'Your account has been successfully created.')
             if destination:
                 return redirect(destination)
             return redirect("/")
         else:
             context['registration_form'] = form
-
-    messages.success(request, 'Your account has been successfully created.')
     return render(request, 'register.html', context)
 
 

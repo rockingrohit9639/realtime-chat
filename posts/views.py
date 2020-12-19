@@ -23,7 +23,8 @@ def home(request, *args, **kwargs):
         context["friends"] = friends
         context["friend_requests"] = friend_requests
         context["comments"] = comments
-
+    else:
+        return redirect("login")
     return render(request, "posts/index.html", context)
 
 
@@ -102,4 +103,6 @@ def comment_on_post(request, *args, **kwargs):
             'post_id': post_id,
         }
         return JsonResponse(data, safe=False)
-    return HttpResponse("Not a valid request.")
+    else:
+        return HttpResponse("Not a valid request.")
+

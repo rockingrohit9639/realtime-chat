@@ -45,10 +45,10 @@
 
 		// This notification does not already exist in the list
 		if(result.length === 0){
-			generalCachedNotifList.push(notification)
+			generalCachedNotifList.push(notification);
 
 			// append to bottom of list
-			appendBottomGeneralNotification(notification)
+			appendBottomGeneralNotification(notification);
 		}
 		// This notification already exists in the list
 		else{
@@ -78,6 +78,14 @@
 							refreshFriendListCard(card, notification)
 							break;
 
+                        case "Like":
+                            refreshLikeCard(card, notification);
+                            break;
+
+                        case "Comment":
+                            refreshCommentCard(card, notification);
+                            break;
+
 						default:
 							// code block
 					}
@@ -101,16 +109,6 @@
             setGeneralPageNumber(new_page_number)
 		}
 	}
-
-	function handleLikePayload(notifications){
-        if(notifications.length > 0){
-            clearNoGeneralNotificationsCard();
-            notifications.forEach(notification => {
-                submitGeneralNotificationToCache(notification);
-                // createAppendLikeNotification(notification);
-            })
-        }
-    }
 
 
 	// Handling new chat notifications
@@ -181,6 +179,12 @@
                 notificationContainer.insertBefore(card, notificationContainer.childNodes[0]);
                 break;
 
+            case "Comment":
+                notificationContainer = document.getElementById("id_general_notifications_container")
+                card = createCommentElement(notification);
+                notificationContainer.insertBefore(card, notificationContainer.childNodes[0]);
+                break;
+
 			default:
 				// code block
 		}
@@ -207,6 +211,12 @@
             case "Like":
                 notificationContainer = document.getElementById("id_general_notifications_container")
                 card = createLikeElement(notification);
+                notificationContainer.appendChild(card);
+                break;
+
+            case "Comment":
+                notificationContainer = document.getElementById("id_general_notifications_container")
+                card = createCommentElement(notification);
                 notificationContainer.appendChild(card);
                 break;
 
@@ -268,6 +278,40 @@
 		})
 	}
 
+	function refreshLikeCard(card, notification){
+        card.childNodes.forEach((element)=>{
+            if(element.id === ("id_general_div1_" + notification['notification_id'])){
+                element.childNodes.forEach((child)=>{
+                    if(child.id === ("id_general_verb_" + notification['notification_id'])){
+                        child.innerHTML = notification['statement'];
+                    }
+                })
+            }
+
+            // TIMESTAMP
+			if (element.id === ("id_timestamp_" + notification['notification_id'])){
+				element.innerHTML = notification['natural_timestamp']
+			}
+        })
+    }
+
+    function refreshCommentCard(card, notification){
+        card.childNodes.forEach((element)=>{
+            if(element.id === ("id_general_div1_" + notification['notification_id'])){
+                element.childNodes.forEach((child)=>{
+                    if(child.id === ("id_general_verb_" + notification['notification_id'])){
+                        child.innerHTML = notification['statement'];
+                    }
+                })
+            }
+
+            // TIMESTAMP
+			if (element.id === ("id_timestamp_" + notification['notification_id'])){
+				element.innerHTML = notification['natural_timestamp']
+			}
+        })
+    }
+
 	function createFriendListElement(notification){
 		let card = createGeneralNotificationCard();
 		card.id = assignGeneralCardId(notification);
@@ -293,14 +337,48 @@
 		span.id = assignGeneralStatementId(notification);
 		div1.appendChild(span);
 		card.appendChild(div1);
-		card.appendChild(createGeneralTimestampElement(notification));
+		//card.appendChild(createGeneralTimestampElement(notification));
 
 		return card;
 	}
 
+	function createCommentElement(notification){
+        let card = createGeneralNotificationCard();
+		card.id = assignGeneralCardId(notification);
+		card.addEventListener("click", function(){
+			generalRedirect(notification['actions']['redirect_url'])
+		});
+
+		let div1 = document.createElement("div");
+		div1.classList.add("d-flex", "flex-row", "align-items-start");
+		div1.id = assignGeneralDiv1Id(notification);
+
+        let img = createGeneralProfileImageThumbnail(notification);
+		div1.appendChild(img);
+
+		let span = document.createElement("span");
+		span.classList.add("align-items-start", "pt-1", "m-auto");
+		if(notification['statement'].length > 50){
+			span.innerHTML = notification['statement'].slice(0, 50) + "...";
+		}
+		else{
+			span.innerHTML = notification['statement'];
+		}
+
+		span.id = assignGeneralStatementId(notification);
+		div1.appendChild(span);
+		card.appendChild(div1);
+		//card.appendChild(createGeneralTimestampElement(notification));
+
+		return card;
+    }
+
 	function createLikeElement(notification){
 	    let card = createGeneralNotificationCard();
 	    card.id = assignGeneralCardId(notification);
+	    card.addEventListener("click", function(){
+			generalRedirect(notification['actions']['redirect_url'])
+		});
 
 	    let div1 = document.createElement("div");
 		div1.classList.add("d-flex", "flex-row", "align-items-start");
@@ -320,7 +398,7 @@
 		span.id = assignGeneralStatementId(notification);
 		div1.appendChild(span);
 		card.appendChild(div1);
-		card.appendChild(createGeneralTimestampElement(notification));
+		//card.appendChild(createGeneralTimestampElement(notification));
 
 		return card;
     }
@@ -396,7 +474,7 @@
 			div1.appendChild(span);
 			card.appendChild(div1);
 		}
-		card.appendChild(createGeneralTimestampElement(notification));
+		//card.appendChild(createGeneralTimestampElement(notification));
 
 		return card;
 	}
@@ -449,11 +527,8 @@
 		let timestamp = document.createElement("p");
 		timestamp.classList.add("small", "pt-2", "timestamp-text");
 
-		if(notification.notification_type === "Like"){
-		    timestamp.innerHTML = notification['timestamp'];
-        }else{
-		    timestamp.innerHTML = notification['natural_timestamp'];
-        }
+		timestamp.innerHTML = notification['natural_timestamp'];
+
 		timestamp.id = assignGeneralTimestampId(notification);
 		return timestamp;
 	}
@@ -606,9 +681,9 @@
 	// Starting the service of getting notifications
 	function startGeneralNotificationService(){
 		if("{{request.user.is_authenticated}}" === "True"){
-			setInterval(refreshGeneralNotifications, GENERAL_NOTIFICATION_INTERVAL);
             setInterval(getNewGeneralNotifications, GENERAL_NOTIFICATION_INTERVAL);
             setInterval(getUnreadGeneralNotificationsCount, GENERAL_NOTIFICATION_INTERVAL);
+			setInterval(refreshGeneralNotifications, GENERAL_NOTIFICATION_INTERVAL);
 		}
 	}
 

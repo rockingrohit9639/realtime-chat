@@ -12,7 +12,7 @@ from .models import Notification
 from .utils import LazyNotificationEncoder
 from private_chat.models import UnreadChatRoomMessages
 from private_chat.utils import calculate_timestamp
-from posts.models import Like
+from posts.models import Like, Comment
 from .constants import *
 
 
@@ -201,8 +201,9 @@ def get_general_notifications(user, page_number):
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
         like_ct = ContentType.objects.get_for_model(Like)
+        comment_ct = ContentType.objects.get_for_model(Comment)
 
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_list_ct, friend_request_ct, like_ct]).order_by("-timestamp")
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_list_ct, friend_request_ct, like_ct, comment_ct]).order_by("-timestamp")
         p = Paginator(notifications, DEFAULT_NOTIFICATION_PAGE_SIZE)
 
         payload = {}
@@ -272,8 +273,9 @@ def refresh_general_notifications(user, oldest_timestamp, newest_timestamp):
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
 
         like_ct = ContentType.objects.get_for_model(Like)
-        
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct], timestamp__gte=oldest_timestamp, timestamp__lte=newest_timestamp).order_by('-timestamp')
+        comment_ct = ContentType.objects.get_for_model(Comment)
+
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct, comment_ct], timestamp__gte=oldest_timestamp, timestamp__lte=newest_timestamp).order_by('-timestamp')
 
         s = LazyNotificationEncoder()
         payload['notifications'] = s.serialize(notifications)
@@ -293,8 +295,9 @@ def get_new_general_notifications(user, newest_timestamp):
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
         like_ct = ContentType.objects.get_for_model(Like)
+        comment_ct = ContentType.objects.get_for_model(Comment)
 
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct], timestamp__lte=newest_timestamp, is_read=False).order_by('-timestamp')
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct, comment_ct], timestamp__lte=newest_timestamp, is_read=False).order_by('-timestamp')
 
         s = LazyNotificationEncoder()
 
@@ -311,8 +314,9 @@ def get_unread_general_notification_count(user):
         friend_request_ct = ContentType.objects.get_for_model(FriendRequest)
         friend_list_ct = ContentType.objects.get_for_model(FriendList)
         like_ct = ContentType.objects.get_for_model(Like)
+        comment_ct = ContentType.objects.get_for_model(Comment)
 
-        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct])
+        notifications = Notification.objects.filter(target=user, content_type__in=[friend_request_ct, friend_list_ct, like_ct, comment_ct])
 
         unread_count = 0
         if notifications:

@@ -94,6 +94,10 @@ Register
             text-decoration: none;
         }
 
+        #id_show_password{
+            cursor: pointer;
+        }
+
 
     </style>
 
@@ -122,6 +126,7 @@ Register
                             <div class="col-lg-7 inputs d-flex mt-2">
                                 <span class="material-icons my-auto">lock</span>
                                 <input type="password" name="password1" id="inputPassword1" class="form-control" placeholder="Password" autocomplete="off" required>
+                                <span class="material-icons pt-2 pr-2" id="id_show_password"> visibility </span>
                             </div>
                         </div>
 
@@ -161,6 +166,24 @@ Register
             </div>
         </div>
     </section>
+
+    <script type="text/javascript">
+    let shownPassword = false;
+    let passwordInput = document.getElementById('inputPassword1');
+    let showPasswordIcon = document.getElementById('id_show_password');
+
+    showPasswordIcon.addEventListener('click', ()=> {
+        if(!shownPassword){
+            passwordInput.type = "text";
+            showPasswordIcon.innerText = "visibility_off";
+            shownPassword = true;
+        }else{
+            passwordInput.type = "password";
+            showPasswordIcon.innerText = "visibility";
+            shownPassword = false;
+        }
+    })
+    </script>
 
 
 {% endblock content %}

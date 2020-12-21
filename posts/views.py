@@ -106,3 +106,40 @@ def comment_on_post(request, *args, **kwargs):
     else:
         return HttpResponse("Not a valid request.")
 
+
+def delete_post(request, *args, **kwargs):
+    user = request.user
+    if user.is_authenticated:
+        post_id = kwargs.get('post_id')
+        post_obj = Post.objects.get(id=post_id)
+
+        if post_obj.author == user:
+            post_obj.delete()
+            messages.success(request, "Post deleted successfully.")
+        else:
+            messages.error(request, "Your are not author of this post.")
+        return redirect("/")
+    else:
+        messages.error(request, "You are not allowed to delete this post.")
+        return redirect("/")
+
+
+def edit_post(request, *args, **kwargs):
+    user = request.user
+    if user.is_authenticated:
+        if request.POST:
+            new_content = request.POST.get('edit-content')
+            new_image = request.FILES.get('edit-file')
+            new_feeling = request.POST.get('edit-feeling')
+            post_id = request.POST.get('post_id')
+
+            post_obj = Post.objects.get(id=post_id)
+            post_obj.content = new_content
+            post_obj.feeling = new_feeling
+            post_obj.post_image = new_image
+            post_obj.save()
+            messages.success(request, "Post edited successfully.")
+        else:
+            messages.warning(request, "This is not a valid request.")
+    return redirect("/")
+

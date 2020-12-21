@@ -61,7 +61,7 @@ Edit Profile
 					</div>
 		  		</div>
 		  		<form class="form-signin" method="post">{% csrf_token %}
-		  			<input class="d-none" type="file" name="profile_image" id="id_profile_image" onchange="readURL(this)">
+		  			<input class="d-none" type="file" name="profile_image" id="id_profile_image" accept=".png, .jpg, .jpeg" onchange="readURL(this)">
 			  		<h6 class="mt-4 field-heading">Email</h6>
 			  		<input type="email" name="email" id="id_input_email" class="form-control" placeholder="Email address" required autofocus value={{form.initial.email}}>
 			  		<h6 class="mt-4 field-heading">Username</h6>
@@ -116,9 +116,10 @@ Edit Profile
     let cropWidth;
     let cropHeight
 
-	enableImageOverlay()
+	enableImageOverlay();
 
-    displaySpinner(false)
+    displaySpinner(false);
+
     function displaySpinner(isDisplayed){
         let spinner = document.getElementById('id_loading_spinner');
         if (isDisplayed){
@@ -134,18 +135,13 @@ Edit Profile
             let reader = new FileReader();
 
             reader.onload = function (e) {
-            	disableImageOverlay()
-            	let image = e.target.result
-            	let imageField = document.getElementById('id_profile_image_display')
-                imageField.src = image
+            	disableImageOverlay();
+            	let image = e.target.result;
+            	let imageField = document.getElementById('id_profile_image_display');
+                imageField.src = image;
                  cropper = new Cropper(imageField, {
                      aspectRatio: 1/1,
                      crop(e){
-                         console.log("CROP START")
-                         console.log("X : " + e.detail.x)
-                         console.log("Y : " + e.detail.y)
-                         console.log("Width : " + e.detail.width)
-                         console.log("Height : " + e.detail.height)
                          setImageCropProperties(image, e.detail.x, e.detail.y, e.detail.width, e.detail.height);
                      }
                  })
@@ -166,19 +162,18 @@ Edit Profile
     function is_image_size_valid(image){
         let startIndex = image.indexOf("base64,") + 7;
         let base64String = image.substr(startIndex);
-        let decoded = atob(base64String)
+        let decoded = atob(base64String);
 
-        console.log(decoded.length)
         console.log("{{ DATA_UPLOAD_MAX_MEMORY_SIZE }}")
 
-        if(decoded.length >= "{{ DATA_UPLOAD_MAX_MEMORY_SIZE }}"){
-            return null
-        }
+        {#//if(decoded.length >= "{{ DATA_UPLOAD_MAX_MEMORY_SIZE }}"){#}
+        //    return null
+        //}
         return base64String
     }
 
     function crop_image(image, x, y, width, height){
-        let base64ImageString = is_image_size_valid(image)
+        let base64ImageString = is_image_size_valid(image);
 
 		if(base64ImageString != null){
 			let requestData = {
@@ -189,7 +184,9 @@ Edit Profile
 				"cropWidth": width,
 				"cropHeight": height
 			}
-			displaySpinner(true)
+
+			displaySpinner(true);
+
 			$.ajax({
 				type: 'POST',
 				dataType: "json",
@@ -197,6 +194,7 @@ Edit Profile
 				data: requestData,
 				timeout: 10000,
 				success: function(data) {
+				    console.log(data)
 					if(data.result === "success"){
 						document.getElementById("id_cancel").click()
 					}
@@ -311,7 +309,7 @@ Edit Profile
 
 		let cancel = document.getElementById("id_cancel")
 		cancel.addEventListener("click", function(event){
-			console.log("Reloading window...")
+			console.log("Reloading window...");
 			window.location.reload();
 		})
 

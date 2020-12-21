@@ -16,6 +16,7 @@ from friend.models import FriendList, FriendRequest
 from friend.utils import get_request_or_not
 from friend.friend_request_status import FriendRequestStatus
 from django.contrib import messages
+from posts.models import Post, Comment
 
 
 TEMP_PROFILE_IMAGE_NAME = "temp_profile_image.png"
@@ -86,19 +87,13 @@ def get_redirect_if_exists(request):
 
 
 def account_view(request, *args, **kwargs):
-    """
-    	- Logic here is kind of tricky
-    		is_self
-    		is_friend
-    			-1: NO_REQUEST_SENT
-    			0: THEM_SENT_TO_YOU
-    			1: YOU_SENT_TO_THEM
-    	"""
     context = {}
     user_id = kwargs.get("user_id")
     try:
         account = Account.objects.get(pk=user_id)
-    except:
+        posts = Post.objects.filter(author=account)
+        comments = Comment.objects.all()
+    except Exception as e:
         return HttpResponse("Something went wrong.")
     if account:
         context['id'] = account.id
@@ -107,6 +102,8 @@ def account_view(request, *args, **kwargs):
         context['bio'] = account.bio
         context['profile_image'] = account.profile_image.url
         context['hide_email'] = account.hide_email
+        context['posts'] = posts
+        context['comments'] = comments
 
         try:
             friend_list = FriendList.objects.get(user=account)
@@ -129,11 +126,11 @@ def account_view(request, *args, **kwargs):
             else:
                 is_friend = False
                 # CASE1: Request has been sent from THEM to YOU: FriendRequestStatus.THEM_SENT_TO_YOU
-                if get_request_or_not(sender=account, receiver=user) != False:
+                if get_request_or_not(sender=account, receiver=user):
                     request_sent = FriendRequestStatus.THEM_SENT_YOU.value
                     context['pending_friend_request_id'] = get_request_or_not(sender=account, receiver=user).id
                 # CASE2: Request has been sent from YOU to THEM: FriendRequestStatus.YOU_SENT_TO_THEM
-                elif get_request_or_not(sender=user, receiver=account) != False:
+                elif get_request_or_not(sender=user, receiver=account):
                     request_sent = FriendRequestStatus.YOU_SENT_THEM.value
                 # CASE3: No request sent from YOU or THEM: FriendRequestStatus.NO_REQUEST_SENT
                 else:
@@ -182,16 +179,20 @@ def account_search_view(request, *args, **kwargs):
 def edit_account_view(request, *args, **kwargs):
     if not request.user.is_authenticated:
         return redirect("login")
+
     user_id = kwargs.get("user_id")
     account = Account.objects.get(pk=user_id)
+
     if account.pk != request.user.pk:
         messages.error(request, 'You are not allowed to edit this profile.')
-        return HttpResponse("You are not allowed to edit this profile.")
+        return redirect("/")
+
     context = {}
     if request.POST:
         form = AccountUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Account info updated successfully.')
             return redirect("account:account", user_id=account.pk)
         else:
             form = AccountUpdateForm(request.POST, instance=request.user,
@@ -199,6 +200,7 @@ def edit_account_view(request, *args, **kwargs):
                                          "id": account.pk,
                                          "email": account.email,
                                          "username": account.username,
+                                         "bio": account.bio,
                                          "profile_image": account.profile_image,
                                          "hide_email": account.hide_email,
                                      }
@@ -217,7 +219,6 @@ def edit_account_view(request, *args, **kwargs):
         )
         context['form'] = form
     context['DATA_UPLOAD_MAX_MEMORY_SIZE'] = settings.DATA_UPLOAD_MAX_MEMORY_SIZE
-    messages.success(request, 'Account info updated successfully.')
     return render(request, "update_account.html", context)
 
 
@@ -227,9 +228,12 @@ def save_temp_profile_image_from_base64String(imageString, user):
     try:
         if not os.path.exists(settings.TEMP):
             os.mkdir(settings.TEMP)
+
         if not os.path.exists(settings.TEMP + "/" + str(user.pk)):
             os.mkdir(settings.TEMP + "/" + str(user.pk))
+
         url = os.path.join(settings.TEMP + "/" + str(user.pk), TEMP_PROFILE_IMAGE_NAME)
+
         storage = FileSystemStorage(location=url)
         image = base64.b64decode(imageString)
         with storage.open('', 'wb+') as destination:
@@ -261,9 +265,9 @@ def crop_image(request, *args, **kwargs):
             cropHeight = int(float(str(request.POST.get("cropHeight"))))
             if cropX < 0:
                 cropX = 0
-            if cropY < 0:  # There is a bug with cropperjs. y can be negative.
+            if cropY < 0:
                 cropY = 0
-            crop_img = img[cropY:cropY + cropHeight, cropX:cropX + cropWidth]
+            crop_img = img[cropY:cropY+cropHeight, cropX:cropX+cropWidth]
 
             cv2.imwrite(url, crop_img)
 
@@ -271,12 +275,11 @@ def crop_image(request, *args, **kwargs):
             user.profile_image.delete()
 
             # Save the cropped image to user model
-            user.profile_image.save()
+            user.profile_image.save("profile_image.png", files.File(open(url, 'rb')))
             user.save()
 
             payload['result'] = "success"
             payload['cropped_profile_image'] = user.profile_image.url
-
             # delete temp file
             os.remove(url)
 

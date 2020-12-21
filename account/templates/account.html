@@ -6,236 +6,572 @@
 {% block content %}
 
 <style type="text/css">
-  .image-container {
-    max-width: 250px;
-    height: auto;
-  }
-  .field-heading {
-    color: var(--secondary-text-color);
-  }
-  .icon-container:hover {
-    opacity: 0.3;
-    cursor: pointer;
-  }
-  .friends-icon {
-    color: #4287f5;
-    font-size: 40px;
-  }
-  .person-add-icon {
-    color: #4287f5;
-    font-size: 40px;
-  }
-  .friend-text {
-    font-weight: 500;
-    color: black;
-  }
-  .friends-btn {
-    background-color: #cccccc;
-    border-color: #cccccc;
-    color: #000;
-    font-weight: 500;
-  }
-  .friends-btn:hover {
-    background-color: #bfbfbf;
-    border-color: #bfbfbf;
-  }
-  .dropdown-toggle::after {
-    content: none;
-  }
-  .card {
-    border-radius: 12px;
-  }
-  .material-icons {
-    font-size: 30px;
-  }
-  .material-icons:hover {
-    cursor: pointer;
-  }
-  .confirm-friend-request {
-    color: green;
-  }
-  .confirm-friend-request:hover {
-    opacity: 0.3;
-  }
-  .decline-friend-request:hover {
-    opacity: 0.3;
-  }
-  .decline-friend-request {
-    color: red;
-  }
-  .message-btn-text {
-    font-weight: 500;
-  }
+
+    .new_post{
+        background: #ffffff;
+        border-radius: 10px;
+    }
+
+    .push-modal{
+            background: #f2f2f2;
+            width: 64rem;
+            border-radius: 50px;
+            user-select: none;
+            padding: 10px 20px;
+            color: #617284;
+        }
+        .push-modal:hover{
+            background: #e5e6ea;
+            cursor: pointer;
+        }
+
+        .Btn{
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .Btn:hover{
+            background: #f2f2f2;
+        }
+
+        .photo{
+            color: #42b35d;
+        }
+
+        .feeling{
+            color: #f7b928;
+        }
+
+        .form-group textarea{
+            border: none;
+            outline: none;
+            font-size: 2rem;
+        }
+
+        .form-group textarea:active,
+        .form-group textarea:focus{
+            box-shadow: none;
+        }
+
+        .feeling_icon span{
+            color: #46b15a;
+        }
+
+        .like-form button{
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+
+        .photo{
+            color: #42b35d;
+        }
+
+        .feeling{
+            color: #f7b928;
+        }
+
+        .post{
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .f{
+            color: #9f9696;
+            padding-left: 5px;
+        }
+
+        .form-group textarea{
+            border: none;
+            outline: none;
+            font-size: 2rem;
+        }
+
+        .form-group textarea:active,
+        .form-group textarea:focus{
+            box-shadow: none;
+        }
+
+        .feeling_icon span{
+            color: #46b15a;
+        }
+
+        .new-comment input{
+            width: 30rem;
+            outline: none;
+            border: none;
+            background: #f2f2f2;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+
+        .new-comment button{
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+
+        .new-comment button:hover{
+            color: #007aff;
+        }
+
+        .comments{
+            max-height: 10rem;
+            overflow: scroll;
+            margin-bottom: 20px;
+        }
+        .comment-data img{
+            width: 40px;
+            height: 40px;
+        }
+        .f-right{
+            float: right;
+        }
+
+        .dropdown button{
+            outline: none;
+            border: none;
+            background: transparent;
+        }
+
+        #id_send_friend_request_btn{
+            background: #e7f3ff;
+            color: #0571ec;
+            border-radius: 5px;
+        }
+
+        #id_send_friend_request_btn:hover{
+            background: #dbe7f3;
+        }
+
+        #id_cancel_friend_request_btn{
+            background: #fcc3ca;
+            color: #fa5b5b;
+            border-radius: 5px;
+        }
+
+        #id_cancel_friend_request_btn:hover{
+            background: #f8a8a8;
+        }
+
+        .unfriend button{
+            background: #e8f8f6;
+            transition: 0.2s all;
+        }
+
+        .dropdown-menu a{
+            cursor: pointer;
+        }
+
+        .profile-img-section{
+            background: #ffffff;
+            height: 60vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .actions{
+            width: 60%;
+        }
+
+        .profile-image {
+            max-height: 100px;
+            max-width: 100px;
+        }
+
+        .about{
+            background: #fff;
+        }
+
+        .setting span{
+            cursor: pointer;
+            transition: 0.5s all;
+        }
+
+        .setting span:hover{
+            transform: rotate(360deg);
+        }
+
 </style>
 
-<div class="container">
-<div class="row">
-    <div class="col-md-6">
 
-
-  <div
-    class="d-flex flex-row justify-content-center flex-wrap align-items-start"
-  >
-    <div class="card profile-card m-2">
-      <div class="card-body">
-        <div class="d-flex flex-column justify-content-center p-4">
-          <div class="image-container mx-auto mb-4">
-            <img
-              class="d-block border border-dark rounded-circle img-fluid mx-auto profile-image"
-              alt="avatar"
-              id="id_profile_image"
-              src="{{profile_image}}"
-            />
-          </div>
-          <p class="mt-4 mb-1 field-heading">Email</p>
-          {% if is_self %}
-          <h5>{{email}}</h5>
-          {% else %} {% if hide_email %}
-          <h5>**********</h5>
-          {% else %}
-          <h5>{{email}}</h5>
-          {% endif %} {% endif %}
-          <p class="mt-4 mb-1 field-heading">Username</p>
-          <h5>{{username}}</h5>
-
-          <!-- If Auth user is viewing their own profile -->
-          {% if is_self %}
-          <a
-            class="mt-4 btn btn-primary"
-            href="{% url 'account:edit' user_id=id %}"
-            >Update</a
-          >
-          <div class="d-flex flex-column mt-4">
-            <a class="m-auto" href="{% url 'password_change' %}"
-              >Change password</a
-            >
-          </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-6">
-    {% if request.user.is_authenticated %}
-    <div class="d-flex flex-column mb-4">
-      <!-- THEM to YOU -->
-      {% if request_sent == 0 %}
-      <div class="card m-2 p-4">
-        <div class="d-flex flex-row align-items-center">
-          <span class="friend-text align-items-center mr-2"
-            >Accept Friend Request</span
-          >
-          <span
-            id="id_cancel_{{id}}"
-            class="decline-friend-request material-icons p-1"
-            onclick='triggerDeclineFriendRequest("{{pending_friend_request_id}}")'
-            >cancel</span
-          >
-          <span
-            id="id_confirm_{{id}}"
-            class="confirm-friend-request material-icons p-1"
-            onclick='triggerAcceptFriendRequest("{{pending_friend_request_id}}")'
-            >check</span
-          >
-        </div>
-      </div>
-      {% endif %}
-
-    <div class="card m-2 px-4 pb-4">
-        <div class="card-body">
-            <h5 class="card-title"> Bio </h5>
-            <hr>
-            <p class="card-text">{{ bio }}</p>
-        </div>
-    </div>
-
-      <div class="card m-2 px-4 pb-4">
-        <!-- Cancel Friend Request / Send Friend Request / Remove Friend -->
-        {% if is_friend == False and is_self == False %}
-        <!-- You sent them a request -->
-        {% if request_sent == 1 %}
-        <div class="d-flex flex-column align-items-center pt-4">
-          <button class="btn btn-danger" id="id_cancel_friend_request_btn">
-            Cancel Friend Request
-          </button>
-        </div>
+    <section class="container-fluid profile-img-section">
+        <img class="d-block rounded-circle img-fluid mx-auto pt-2" width="240px" src="{{profile_image}}" id="id_profile_image" alt="avatar">
+        <h2 class="pt-2"> {{username}} </h2>
+        <p class="text-muted">{{ bio }}</p>
+        {% if is_self %}
+        <a class="" href="#"> Edit </a>
         {% endif %}
-        <!-- No requests have been sent -->
-        {% if request_sent == -1 %}
-        <div class="d-flex flex-column align-items-center pt-4">
-          <button class="btn btn-primary" id="id_send_friend_request_btn">
-            Send Friend Request
-          </button>
+        <hr>
+
+        <div class="d-flex actions justify-content-between">
+            <div class="links">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#posts" role="tab" aria-controls="home" aria-selected="true"> Posts </a>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#about" role="tab" aria-controls="profile" aria-selected="false"> About </a>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#friends" role="tab" aria-controls="contact" aria-selected="false"> Friends <span class="badge badge-primary badge-pill"> {{ friends|length }} </span></a>
+                  </li>
+                </ul>
+            </div>
+
+            <div class="d-flex">
+                {% if is_self %}
+                    {% if friend_requests %}
+                        <a href="{% url 'friend:friend requests' user_id=request.user.id %}" class="Btn nav-link"> Friend Requests <span class="badge badge-primary badge-pill"> {{ friend_requests|length }} </span></a>
+                    {% endif %}
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                    {% if request_sent == 0 %}
+                        <div class="dropdown">
+                          <button class="btn btn-secondary" type="button" id="respond-actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Respond
+                          </button>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                              <span id="id_confirm_{{id}}" class="confirm-friend-request material-icons" onclick='triggerAcceptFriendRequest("{{pending_friend_request_id}}")'>check</span>
+                              <span id="id_cancel_{{id}}" class="decline-friend-request material-icons" onclick='triggerDeclineFriendRequest("{{pending_friend_request_id}}")'>cancel</span>
+                          </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                {% if is_friend == False and is_self == False %}
+
+                    {% if request_sent == 1 %}
+                        <button class="btn" id="id_cancel_friend_request_btn"> Cancel Request </button>
+                    {% endif %}
+
+                    {% if request_sent == -1 %}
+                        <button class="btn" id="id_send_friend_request_btn"> Send Friend Request </button>
+                    {% endif %}
+                {% endif %}
+
+                {% if is_friend %}
+                    <div class="dropdown mt-2 unfriend">
+                        <button class="Btn dropdown-toggle" type="button" id="id_friends_toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Friends</button>
+                        <div class="dropdown-menu" aria-labelledby="id_friends_toggle">
+                            <a class="dropdown-item" onclick="removeFriend('{{id}}', onFriendRemoved)">Unfriend</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        {% endif %} {% endif %} {% if is_friend %}
-        <div class="dropdown pt-4 m-auto">
-          <button
-            class="btn btn-secondary dropdown-toggle friends-btn"
-            type="button"
-            id="id_friends_toggle"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            Friends
-          </button>
-          <div class="dropdown-menu" aria-labelledby="id_friends_toggle">
-            <a
-              class="dropdown-item"
-              onclick="removeFriend('{{id}}', onFriendRemoved)"
-              >Unfriend</a
-            >
+
+    </section>
+
+    <div class="tab-content" id="myTabContent">
+        <!-- Posts Section -->
+        <div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+            <div class="container">
+                <div class="new_post shadow-sm mt-2">
+                    <div class="d-flex pl-3 pt-3 pr-3">
+                        <div class="profile mt-2 mr-2">
+                            {% if request.user.is_authenticated %}
+                                <div class="">
+								<a href="{% url 'account:account' user_id=request.user.pk %}"><img class="account-image rounded-circle my-auto" src="{{request.user.profile_image.url}}" alt="avatar" width="40" height="40"></a>
+							</div>
+                            {% endif %}
+
+                        </div>
+                        <div class="input mt-2" data-toggle="modal" data-target="#newPostModal">
+                            <div>
+                                <p class="push-modal">What's on your mind?</p>
+                            </div>
+                        <hr>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-around pb-2">
+                        <div class="Btn d-flex" data-toggle="modal" data-target="#newPostModal">
+                            <span class="material-icons photo">
+                                add_photo_alternate
+                            </span>
+                            <span> Photo </span>
+                        </div>
+                        <div class="Btn d-flex" data-toggle="modal" data-target="#newPostModal">
+                            <span class="material-icons feeling">
+                                emoji_emotions
+                            </span>
+                            <span class="pl-2"> Feelings </span>
+                        </div>
+                    </div>
+
+                </div>
+
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="post mt-4 shadow-sm">
+
+                    <!-- Post Delete/Edit -->
+                    {% ifequal request.user post.author %}
+                        <div class="f-right">
+                            <div class="dropdown">
+                              <button class="material-icons" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                more_vert
+                              </button>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <span class="dropdown-item" data-toggle="modal" data-target="#edit-post-{{ post.id }}"> Edit </span>
+                                <a class="dropdown-item" href="{% url 'posts:Delete post' post_id=post.id %}"> Delete </a>
+                              </div>
+                            </div>
+                        </div>
+                        <!-- Edit Post Modal  -->
+                        <div class="modal fade" id="edit-post-{{ post.id }}" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel"> Edit Post </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                  <a href="{% url 'account:account' user_id=request.user.pk %}"><img class="account-image rounded-circle my-auto" src="{{request.user.profile_image.url}}" alt="avatar" width="40" height="40"></a>
+                                  <strong class="pl-2"> {{ request.user.username }} </strong>
+
+                                  <form method="POST" action="{% url 'posts:Edit post' %}" enctype='multipart/form-data'>{% csrf_token %}
+                                      <input type="hidden" name="post_id" value="{{ post.id }}">
+                                      <div class="form-group mt-2">
+                                        <div class="form-group">
+                                            <textarea class="form-control" id="edit-content" name="edit-content" rows="3" placeholder="What's on your mind? " required> {{ post.content }} </textarea>
+                                        </div>
+                                      </div>
+
+                                      <div class="d-flex justify-content-around">
+                                           <div class="form-group pt-3">
+                                               <label for="edit-file" class="feeling_icon">
+                                                   <span class="material-icons">add_photo_alternate</span>
+                                               </label>
+                                               <input type="file" name="edit-file" id="edit-file" accept=".png, .jpg, .jpeg, .gif" hidden/>
+                                          </div>
+
+                                          <div class="form-group pt-3">
+                                              <select class="custom-select my-1 mr-sm-2" id="edit-feeling" name="edit-feeling">
+                                                <option selected value="None">None</option>
+                                                <option value="Happy">Happy</option>
+                                                <option value="Sad">Sad</option>
+                                              </select>
+                                          </div>
+
+                                      </div>
+                                      <button type="submit" class="btn btn-primary btn-block"> Edit Post </button>
+                                  </form>
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Edit Post Modal End -->
+
+                    {% endifequal %}
+                    <!-- Post Delete/Edit End -->
+
+
+                        <div class="user d-flex">
+                            <a href="{% url 'account:account' user_id=post.author.id %}"><img class="account-image rounded-circle my-auto" src="{{  post.author.profile_image.url }}" alt="avatar" width="40" height="40"></a>
+                            <p class="pl-3 pt-2"><strong> {{ post.author }} </strong> <span class="f"> feeling {{ post.feeling }} </span> </p>
+                        </div>
+
+                        <div class="content">
+                            <p class="mt-2"> {{ post.content }} </p>
+                            {% if post.post_image %}
+                                <img class="img-fluid" src="{{ post.post_image.url }}"><br>
+                            {% endif %}
+                            <p class="text-muted pt-2" id="likeCount{{ post.id }}"> {{ post.get_num_likes }} Likes </p>
+                        </div>
+                        <hr>
+
+                        <div class="post-actions d-flex justify-content-around">
+                            <form class="like-form" id="{{ post.id }}" method="POST" action="{% url 'posts:Like post' %}" onsubmit="handleLikeUnlike(event, this)">{% csrf_token %}
+                                    <input type="hidden" name="post_id" value={{post.id}}>
+                                    <button class="like d-flex Btn" type="submit">
+                                        {% if request.user in post.liked.all %}
+                                            <span class="material-icons pr-2 text-primary" id="like-{{ post.id }}">
+                                            thumb_down
+                                            </span>
+                                            <span id="likeText-{{ post.id }}" class="text-primary like-btn{{ post.id }}"> Unlike </span>
+                                        {% else %}
+                                            <span class="material-icons pr-2" id="like-{{ post.id }}">
+                                            thumb_up
+                                            </span>
+                                            <span id="likeText-{{ post.id }}" class="like-btn{{ post.id }}"> Like </span>
+                                        {% endif %}
+                                    </button>
+                                </form>
+
+                            <div class="comment d-flex Btn" data-toggle="collapse" href="#comment-{{ post.id }}" role="button" aria-expanded="false">
+                                <span class="material-icons pr-2" id="comment">
+                                    mode_comment
+                                </span>
+                                <span> Comment </span>
+                            </div>
+
+                            <div class="share d-flex Btn" onclick="handleSharePost('{{ post.id }}');">
+                                <span class="material-icons pr-2" id="share">
+                                    share
+                                </span>
+                                <span> Share </span>
+                            </div>
+                        </div>
+
+                    <!-- Comment -->
+                        <div class="collapse" id="comment-{{ post.id }}">
+                          <div class="card-body p-3">
+
+                              <div class="comments" id="all-comments-{{ post.id }}">
+                                  {% if comments %}
+                                      {% for comment in comments %}
+                                            {% if comment.post.id == post.id %}
+                                                <div class="comment-data d-flex my-2">
+                                                    <img src="{{ comment.author.profile_image.url }}" class="rounded-circle my-auto mx-3" alt="profile_img">
+                                                    <div>
+                                                        <h6> {{ comment.author.username }} </h6>
+                                                        <p> {{ comment.comment }} </p>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                      {% endfor %}
+                                  {% endif %}
+                              </div>
+
+                              <div class="new-comment d-flex justify-content-around">
+                                  <a href="{% url 'account:account' user_id=request.user.id %}"><img class="account-image rounded-circle my-auto" src="{{  request.user.profile_image.url }}" alt="avatar" width="40" height="40"></a>
+
+                                  <form class="comment-form" id="comment-form-{{ post.id }}" action="add-comment/" method="post">{% csrf_token %}
+                                      <input type="text" id="comment-input-{{ post.id }}" name="comment" placeholder="Write a comment">
+                                  </form>
+
+                                  <button id="{{ post.id }}" onclick="handleComment(this.id);"> <span class="material-icons"> send </span> </button>
+                              </div>
+                          </div>
+                        </div>
+                    <!-- Comment End -->
+
+                    </div>
+                {% endfor %}
+            </div>
+                {% endif %}
+
+
+            </div>
+
+        <!-- About Section -->
+        <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
+            <div class="container mt-2">
+                <div class="row">
+                    <div class="col-md-3 about p-3">
+                        Email :
+                    </div>
+                    <div class="col-md-9 about p-3 d-flex justify-content-between">
+                        <div class="email">
+                        {% if is_self %}
+                            <h5> {{ email }} </h5>
+                            {% else %}
+                            {% if hide_email %}
+                                <h5>**********</h5>
+                            {% else %}
+                                <h5> {{ email }} </h5>
+                            {% endif %}
+                        {% endif %}
+                        </div>
+                    <div class="setting p-3">
+                        {% if is_self %}
+                            <div class="dropdown">
+                                <span class="material-icons" id="about-drop-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">settings</span>
+                                <div class="dropdown-menu" aria-labelledby="about-drop-menu">
+                                    <a class="dropdown-item" href="{% url 'account:edit' user_id=id %}"> Edit About </a>
+                                    <a class="dropdown-item" href="{% url 'password_change' %}"> Change Password </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Friends Section -->
+        <div class="tab-pane fade" id="friends" role="tabpanel" aria-labelledby="friends-tab">
+
+            <div class="container">
+                {% if request.user.is_authenticated %}
+                    {% if friends %}
+                        <div class="row"></div>
+                        {% for friend in friends %}
+                            <div class="row card p-3 m-2">
+                                <div class="col-md-12 d-flex justify-content-around">
+                                    <img  class="img-fluid rounded-circle profile-image" src="{{friend.profile_image.url}}" alt=""/>
+                                    <h4 class="pt-4"> {{ friend.username }} </h4>
+                                    {% if is_self %}
+                                    <div class="pt-4"> <a href="#" onclick="createOrReturnPrivateChat('{{friend.id}}')">Send a Message</a> </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Adding new post modal -->
+    <div class="modal fade" id="newPostModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel"> Create Post </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <a href="{% url 'account:account' user_id=request.user.pk %}"><img class="account-image rounded-circle my-auto" src="{{request.user.profile_image.url}}" alt="avatar" width="40" height="40"></a>
+              <strong class="pl-2"> {{ request.user.username }} </strong>
+
+              <form method="POST" action="{% url 'posts:Add new post' %}" enctype='multipart/form-data'>{% csrf_token %}
+
+                  <div class="form-group mt-2">
+                    <div class="form-group">
+                        <textarea class="form-control" id="content" name="content" rows="3" placeholder="What's on your mind? " required></textarea>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-around">
+                       <div class="form-group pt-3">
+                           <label for="file" class="feeling_icon">
+                               <span class="material-icons">add_photo_alternate</span>
+                           </label>
+                           <input type="file" name="file" accept=".png, .jpg, .jpeg, .gif" id="file" hidden/>
+                      </div>
+
+                      <div class="form-group pt-3">
+                          <select class="custom-select my-1 mr-sm-2" id="feeling" name="feeling">
+                            <option selected value="None">None</option>
+                            <option value="Happy">Happy</option>
+                            <option value="Sad">Sad</option>
+                          </select>
+                      </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block"> Post </button>
+              </form>
           </div>
         </div>
-        {% endif %}
+      </div>
+    </div>
 
-        <!-- TODO -->
-        <!-- Friend list link -->
-        <div class="d-flex flex-column pt-4">
-          <a href="{% url 'friend:friend list' user_id=id %}">
-            <div
-              class="d-flex flex-row align-items-center justify-content-center icon-container"
-            >
-              <span class="material-icons mr-2 friends-icon">contact_page</span
-              ><span class="friend-text">Friends ({{ friends|length }})</span>
-            </div>
-          </a>
-        </div>
-      </div>
 
-      <!-- TODO -->
-      {% if friend_requests %}
-      <div class="card m-2 px-4 pb-4">
-        <!-- Friend requests -->
-        <div class="d-flex flex-column pt-4">
-          <a href="{% url 'friend:friend requests' user_id=id %}">
-            <div
-              class="d-flex flex-row align-items-center justify-content-center icon-container"
-            >
-              <span class="material-icons mr-2 person-add-icon">person_add</span
-              ><span class="friend-text"
-                >Friend Requests ({{ friend_requests|length }})</span
-              >
-            </div>
-          </a>
-        </div>
-      </div>
-      {% endif %} {% if is_friend %}
-      <div
-        class="d-flex flex-row align-items-center btn btn-primary m-2 px-4"
-        onclick="createOrReturnPrivateChat('{{id}}')"
-      >
-        <span class="material-icons m-auto"> message </span>
-        <span class="message-btn-text m-auto pl-2">Message</span>
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
-  </div>
-    </div>
-    </div>
 
 <script type="text/javascript">
   // called from base_js.html
@@ -296,11 +632,12 @@
   }
 </script>
 
-{% include 'friend/snippets/send_friend_request.html' %}
-{% include 'friend/snippets/accept_friend_request.html' %}
-{% include 'friend/snippets/decline_friend_request.html' %}
-{% include 'friend/snippets/cancel_friend_request.html' %}
-{% include 'friend/snippets/remove_friend.html' %}
-{% include 'private_chat/create_or_return_private_chat.html' %}
+    {% include 'snippets/basic_functions.html' %}
+    {% include 'friend/snippets/send_friend_request.html' %}
+    {% include 'friend/snippets/accept_friend_request.html' %}
+    {% include 'friend/snippets/decline_friend_request.html' %}
+    {% include 'friend/snippets/cancel_friend_request.html' %}
+    {% include 'friend/snippets/remove_friend.html' %}
+    {% include 'private_chat/create_or_return_private_chat.html' %}
 
 {% endblock content %}

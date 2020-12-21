@@ -1,0 +1,113 @@
+<script>
+            function handleSharePost(post_id){
+                console.log("Sharing post ", post_id);
+                navigator.clipboard.writeText('http://localhost:8000/#' + post_id);
+                alert("Link copied to you clipboard.");
+            }
+
+            function handleLikeUnlike(e, elem){
+                e.preventDefault();
+                let post_id = elem.id;
+                let url = elem.action;
+                let likeText = $(`#likeText-${post_id}`);
+                let icon = $(`#like-${ post_id }`);
+                let likesCount = $(`#likeCount${post_id}`);
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                        'post_id':post_id,
+                    },
+                    success: function(response) {
+                        likesCount.text(response.likes + ' likes');
+                        likeText.text(response.value);
+                        icon.text(response.icon);
+                        console.log(response)
+                        if(response.value === "Unlike"){
+                            //console.log()
+                            icon.addClass("text-primary");
+                            likeText.addClass("text-primary");
+                        }
+                        else if(response.value === "Like"){
+                            icon.removeClass("text-primary");
+                            likeText.removeClass("text-primary");
+                        }
+                    },
+
+                    error: function(response) {
+                        console.log('error', response)
+                    }
+                })
+
+            }
+
+            function handleComment(post_id){
+                let comment = document.getElementById(`comment-input-${ post_id }`).value;
+                let url = document.getElementById(`comment-form-${ post_id }`).action;
+
+                if(comment){
+
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+
+                        data: {
+                            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                            'post_id': post_id,
+                            'comment': comment,
+                        },
+
+                        success: (response)=>{
+                            let comment = document.getElementById(`comment-input-${ post_id }`);
+                            comment.value = "";
+
+                            let mainCommentBox = document.getElementById(`all-comments-${ response.post_id}`);
+                            let comment_box = createNewCommentBox(response);
+
+                            mainCommentBox.insertBefore(comment_box, mainCommentBox.childNodes[0]);
+                        },
+
+                        error: (response)=>{
+                            console.log(response)
+                        }
+
+                    })
+
+                }
+            }
+
+            function createNewCommentBox(response){
+
+                let div1 = document.createElement('div');
+                div1.classList.add('comment-data');
+                div1.classList.add('d-flex');
+                div1.classList.add('my-2');
+
+                // profile image
+                let img = document.createElement('img');
+                img.src = response.profile_img;
+                img.classList.add("rounded-circle");
+                img.classList.add("my-auto");
+                img.classList.add("mx-3");
+                img.alt = "profile_img";
+                div1.appendChild(img);
+
+                let div2 = document.createElement('div');
+
+                let h6 = document.createElement('h6');
+                h6.innerText = response.username;
+                div2.appendChild(h6);
+
+                let p = document.createElement('p');
+                p.innerText = response.comment;
+                div2.appendChild(p);
+
+                div1.appendChild(div2);
+
+                return div1;
+            }
+
+</script>

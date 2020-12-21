@@ -41,23 +41,6 @@ def send_friend_request(request, *args, **kwargs):
     return HttpResponse(json.dumps(payload), content_type="application/json")
 
 
-def friend_request_view(request, *args, **kwargs):
-    context = {}
-    user = request.user
-
-    if user.is_authenticated:
-        user_id = kwargs.get("user_id")
-        account = Account.objects.get(pk=user_id)
-        if account == user:
-            friend_requests = FriendRequest.objects.filter(receiver=account, is_active=True)
-            context['friend_requests'] = friend_requests
-        else:
-            HttpResponse("You can not view other user's friend requests.")
-    else:
-        return redirect("login")
-    return render(request, "friend/friend_requests.html", context)
-
-
 def accept_friend_request(request, *args, **kwargs):
     user = request.user
     payload = {}
@@ -186,3 +169,20 @@ def friend_list_view(request, *args, **kwargs):
     else:
         return HttpResponse("You must be authenticated.")
     return render(request, "friend/friend_list.html", context)
+
+
+def friend_request_view(request, *args, **kwargs):
+    context = {}
+    user = request.user
+
+    if user.is_authenticated:
+        user_id = kwargs.get("user_id")
+        account = Account.objects.get(pk=user_id)
+        if account == user:
+            friend_requests = FriendRequest.objects.filter(receiver=account, is_active=True)
+            context['friend_requests'] = friend_requests
+        else:
+            HttpResponse("You can not view other user's friend requests.")
+    else:
+        return redirect("login")
+    return render(request, "friend/friend_requests.html", context)

@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import (home,
+from .views import (
+                    home,
                     new_post,
                     like_post,
                     comment_on_post,

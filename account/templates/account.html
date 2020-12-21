@@ -168,7 +168,6 @@
 
         .profile-img-section{
             background: #ffffff;
-            height: 60vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -197,15 +196,37 @@
             transform: rotate(360deg);
         }
 
+        #id_bio_text{
+            outline: none;
+            width: 17rem;
+            height: 5rem;
+            padding: 5px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #f1f2f6;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        #id_bio_text:hover{
+            background: #e5e6ea;
+        }
+
 </style>
 
 
     <section class="container-fluid profile-img-section">
         <img class="d-block rounded-circle img-fluid mx-auto pt-2" width="240px" src="{{profile_image}}" id="id_profile_image" alt="avatar">
         <h2 class="pt-2"> {{username}} </h2>
-        <p class="text-muted">{{ bio }}</p>
+
+        <p class="text-muted" id="id_bio"> {{ bio }} </p>
+
+        <div id="id_bio_text_div">
+            <textarea id="id_bio_text"> {{ bio }} </textarea>
+            <button class="btn btn-sm f-right ml-2 btn-primary" id="id_submit_new_bio"> Save </button>
+        </div>
+
         {% if is_self %}
-        <a class="" href="#"> Edit </a>
+        <a class="" id="id_change_bio" href="#" onclick="handleEditBio(event, this);"> Edit </a>
         {% endif %}
         <hr>
 
@@ -575,6 +596,48 @@
 
 <script type="text/javascript">
   // called from base_js.html
+
+  let bio_div = document.getElementById('id_bio_text_div');
+  bio_div.style.display = "none";
+  let newBioElem = document.getElementById('id_bio_text');
+  let newBioText = newBioElem.value;
+
+  newBioElem.addEventListener('change', ()=>{
+        newBioText = newBioElem.value;
+  })
+
+
+  function handleEditBio(event, elem){
+      let bio = document.getElementById('id_bio');
+      let change_bio_btn = document.getElementById('id_change_bio');
+      let sendBtn = document.getElementById('id_submit_new_bio');
+
+      bio_div.style.display = "block";
+      bio.style.display = "none";
+      change_bio_btn.style.display = "none";
+
+      sendBtn.addEventListener('click', ()=>{
+          $.ajax({
+              type: "POST",
+              url: "{% url 'account:edit bio' %}",
+              data: {
+                  "csrfmiddlewaretoken": "{{ csrf_token }}",
+                  "user_id": "{{ id }}",
+                  "new_bio": newBioText,
+              },
+              success: (response)=>{
+                  bio_div.style.display = "none";
+                  bio.innerText = response.newBio;
+                  bio.style.display = "block";
+                  change_bio_btn.style.display = "block";
+              },
+              error: (response)=>{
+                  console.log(response)
+              }
+
+          })
+      })
+  }
 
   preloadImage("{{profile_image|safe}}", 'id_profile_image')
 

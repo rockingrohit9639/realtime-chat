@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import login, authenticate, logout
 from .forms import RegistrationForm, AccountAuthenticationForm, AccountUpdateForm
 from .models import Account
@@ -220,6 +220,23 @@ def edit_account_view(request, *args, **kwargs):
         context['form'] = form
     context['DATA_UPLOAD_MAX_MEMORY_SIZE'] = settings.DATA_UPLOAD_MAX_MEMORY_SIZE
     return render(request, "update_account.html", context)
+
+
+def edit_bio(request, *args, **kwargs):
+    if request.POST:
+        user_id = request.POST.get("user_id")
+        new_bio = request.POST.get("new_bio")
+
+        user = Account.objects.get(id=user_id)
+        user.bio = new_bio
+        user.save()
+
+        data = {
+             "newBio": new_bio,
+        }
+        return JsonResponse(data)
+    else:
+        return HttpResponse("Unexpected request.")
 
 
 # Saving an image temporarily
